@@ -23,11 +23,18 @@ jobs:
           - os: ubuntu-24.04
             platform: linux
             shell: bash
+            toolchain: Linux
+            extension: tar.gz
+          - os: ubuntu-24.04
+            platform: ps5
+            shell: bash
             toolchain: Ps5
+            extension: tar.gz
           - os: windows-2022
             platform: windows
             shell: 'msys2 {0}'
             toolchain: Windows
+            extension: zip
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     defaults:
@@ -54,6 +61,22 @@ jobs:
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-ninja
             mingw-w64-x86_64-python
+      - name: Select package version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "$REF_TYPE" = tag ]; then
+            version="${REF_NAME#v}"
+          else
+            version="dev-${GITHUB_SHA:0:12}"
+          fi
+          if [[ ! "$version" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+            echo "Invalid package version" >&2
+            exit 1
+          fi
+          echo "PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
       - name: Configure
         env:
           TARGET_PLATFORM: ${{ matrix.platform }}
@@ -68,20 +91,22 @@ jobs:
           cmake -S libcxx/platform/anyps5 -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE="cmake/toolchains/$TARGET_TOOLCHAIN.cmake" \
-            -DANYLIBCXX_SYSROOT="$target_sysroot"
+            -DANYLIBCXX_SYSROOT="$target_sysroot" \
+            -DANYLIBCXX_PACKAGE_VERSION="$PACKAGE_VERSION"
       - name: Generate and package headers
         run: cmake --build build --target anylibcxx_headers --parallel 4
       - name: Build runtime and compile checks
         run: cmake --build build --target anylibcxx_package --parallel 4
       - name: Check relocated package
         env:
+          ARCHIVE_EXTENSION: ${{ matrix.extension }}
           TARGET_PLATFORM: ${{ matrix.platform }}
           TARGET_TOOLCHAIN: ${{ matrix.toolchain }}
         run: |
           set -euo pipefail
           mkdir relocated
           cd relocated
-          cmake -E tar xf "../build/packages/llvm-cxx-ps-$TARGET_PLATFORM-x86_64.zip"
+          cmake -E tar xf "../build/packages/llvm-cxx-ps-$PACKAGE_VERSION-$TARGET_PLATFORM-x86_64.$ARCHIVE_EXTENSION"
           cd ..
           if [ "$TARGET_PLATFORM" = windows ]; then
             target_sysroot="$(cygpath -m /mingw64)"
@@ -94,17 +119,55 @@ jobs:
             -DANYLIBCXX_SYSROOT="$target_sysroot" \
             -DAnyLibcxx_DIR="$PWD/relocated/lib/cmake/AnyLibcxx"
           cmake --build build-consumer --parallel 4
+          llvm-ar t relocated/lib/libanycxx.a > archive-members.txt
+          test -s archive-members.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: llvm-cxx-ps-${{ matrix.platform }}-x86_64
           path: |
             build/packages/*.zip
+            build/packages/*.tar.gz
             build/packages/*.sha256
+          if-no-files-found: error
+
+  headers:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: llvm-cxx-ps-*
+          path: artifacts
+          merge-multiple: true
+      - name: Bundle platform headers
+        run: |
+          set -euo pipefail
+          cd artifacts
+          sha256sum --check *.sha256
+          mkdir ../headers ../packages
+          for platform in windows linux ps5; do
+            archives=(llvm-cxx-ps-*-$platform-x86_64-headers.zip)
+            test "${#archives[@]}" -eq 1
+            unzip -q "${archives[0]}" -d "../headers/$platform-x86_64"
+          done
+          windows=(llvm-cxx-ps-*-windows-x86_64-headers.zip)
+          version="${windows[0]#llvm-cxx-ps-}"
+          version="${version%-windows-x86_64-headers.zip}"
+          cd ../headers
+          archive="llvm-cxx-ps-$version-headers.zip"
+          zip -qr "../packages/$archive" .
+          cd ../packages
+          sha256sum "$archive" > "$archive.sha256"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: headers
+          path: packages/*
           if-no-files-found: error
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [build, headers]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -112,7 +175,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          pattern: llvm-cxx-ps-*
           path: artifacts
           merge-multiple: true
       - name: Publish release
@@ -124,4 +186,5 @@ jobs:
           set -euo pipefail
           cd artifacts
           sha256sum --check *.sha256
-          gh release create "$RELEASE_TAG" *.zip *.sha256 --verify-tag --title "$RELEASE_TAG" --generate-notes
+          rm -- *-x86_64-headers.zip *-x86_64-headers.zip.sha256
+          gh release create "$RELEASE_TAG" *.zip *.tar.gz *.sha256 --verify-tag --title "$RELEASE_TAG" --generate-notes
