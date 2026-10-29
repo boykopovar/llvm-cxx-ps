@@ -87,3 +87,5 @@ if(WIN32)
     list(APPEND windowsImports "__stdinp_nid_postfix DATA" "__stdoutp_nid_postfix DATA" "__stderrp_nid_postfix DATA")
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/WindowsImports.cmake" "set(ANYLIBCXX_WINDOWS_IMPORTS \"${windowsImports}\")\n")
 endif()
+
+configure_file(cmake/AnyLibcxxConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/AnyLibcxxConfig.cmake" @ONLY)
