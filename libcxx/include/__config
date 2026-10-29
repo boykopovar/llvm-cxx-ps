@@ -818,6 +818,12 @@ typedef __char32_t char32_t;
 
 // Thread API
 // clang-format off
+#  if _LIBCPP_HAS_THREADS || defined(_LIBCPP_ABI_PS5)
+#    define _LIBCPP_HAS_THREAD_TYPES 1
+#  else
+#    define _LIBCPP_HAS_THREAD_TYPES 0
+#  endif
+
 #  if _LIBCPP_HAS_THREADS &&                                                                                           \
       !_LIBCPP_HAS_THREAD_API_PTHREAD &&                                                                               \
       !_LIBCPP_HAS_THREAD_API_WIN32 &&                                                                                 \

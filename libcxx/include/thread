@@ -90,6 +90,9 @@ void sleep_for(const chrono::duration<Rep, Period>& rel_time);
 #  include <__cxx03/thread>
 #else
 #  include <__config>
+#  if _LIBCPP_HAS_THREAD_TYPES
+#    include <__thread/thread.h>
+#  endif
 
 #  if _LIBCPP_HAS_THREADS
 

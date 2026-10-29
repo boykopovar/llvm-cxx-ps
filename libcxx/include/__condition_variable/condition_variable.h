@@ -33,7 +33,7 @@ _LIBCPP_PUSH_MACROS
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 
-#if _LIBCPP_HAS_THREADS
+#if _LIBCPP_HAS_THREAD_TYPES
 
 // enum class cv_status
 _LIBCPP_DECLARE_STRONG_ENUM(cv_status){no_timeout, timeout};

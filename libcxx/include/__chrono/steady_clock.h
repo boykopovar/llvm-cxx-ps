@@ -22,7 +22,7 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 
 namespace chrono {
 
-#if _LIBCPP_HAS_MONOTONIC_CLOCK
+#if _LIBCPP_HAS_MONOTONIC_CLOCK || defined(_LIBCPP_ABI_PS5)
 class _LIBCPP_EXPORTED_FROM_ABI steady_clock {
 public:
   typedef nanoseconds duration;

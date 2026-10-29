@@ -17,7 +17,7 @@
 #  pragma GCC system_header
 #endif
 
-#if _LIBCPP_HAS_THREADS
+#if _LIBCPP_HAS_THREAD_TYPES
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 

@@ -104,7 +104,15 @@ _LIBCPP_END_NAMESPACE_STD
 
 */
 
-#if _LIBCPP_HAS_THREADS
+#if defined(_LIBCPP_ABI_PS5) && !_LIBCPP_HAS_THREADS
+#  if defined(_WIN32)
+#    include <__thread/support/windows.h>
+#  elif defined(__linux__)
+#    include <__thread/support/pthread.h>
+#  else
+#    error Unsupported AnyLibcxx thread type platform
+#  endif
+#elif _LIBCPP_HAS_THREADS
 
 #  if _LIBCPP_HAS_THREAD_API_EXTERNAL
 #    include <__thread/support/external.h>

@@ -22,7 +22,7 @@
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 
-#if _LIBCPP_HAS_THREADS
+#if _LIBCPP_HAS_THREAD_TYPES
 class _LIBCPP_EXPORTED_FROM_ABI __thread_id;
 
 namespace this_thread {
