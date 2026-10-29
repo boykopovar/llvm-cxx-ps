@@ -224,7 +224,7 @@ template <class charT> class messages_byname;
 
 #    if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 // Most unix variants have catopen.  These are the specific ones that don't.
-#      if !defined(__BIONIC__) && !defined(_NEWLIB_VERSION) && !defined(__EMSCRIPTEN__)
+#      if !defined(_LIBCPP_ABI_PS5) && !defined(__BIONIC__) && !defined(_NEWLIB_VERSION) && !defined(__EMSCRIPTEN__)
 #        define _LIBCPP_HAS_CATOPEN 1
 #        include <nl_types.h>
 #      else
@@ -2606,7 +2606,7 @@ _InputIterator money_get<_CharT, _InputIterator>::do_get(
     for (const char_type* __w = __wb.get(); __w < __wn; ++__w, ++__nc)
       *__nc = __src[std::find(__atoms, std::end(__atoms), *__w) - __atoms];
     *__nc = char();
-    if (sscanf(__nbuf, "%Lf", &__v) != 1)
+    if (__locale::__sscanf(__nbuf, _LIBCPP_GET_C_LOCALE, "%Lf", &__v) != 1)
       __throw_runtime_error("money_get error");
   }
   if (__b == __e)
