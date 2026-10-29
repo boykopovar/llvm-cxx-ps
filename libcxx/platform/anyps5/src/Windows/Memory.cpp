@@ -1,6 +1,4 @@
 #include <stddef.h>
-#include <stdio.h>
-#include <wchar.h>
 
 extern "C" {
 void* __attribute__((sysv_abi)) malloc_nid_postfix(size_t size);
