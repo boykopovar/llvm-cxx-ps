@@ -20,7 +20,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "@CMAKE_SYSTEM_NAME@")
     message(FATAL_ERROR "This AnyLibcxx build targets @CMAKE_SYSTEM_NAME@")
 endif()
 
-set(anyLibcxxRuntime "${CMAKE_CURRENT_LIST_DIR}/3rdparty/llvm-project/runtimes")
+set(anyLibcxxRuntime "${CMAKE_CURRENT_LIST_DIR}/@ANYLIBCXX_RUNTIME_RELATIVE@")
 foreach(required "${anyLibcxxRuntime}/include/c++/v1/__config_site" "${anyLibcxxRuntime}/lib/libc++.a")
     if(NOT EXISTS "${required}")
         message(FATAL_ERROR "Incomplete AnyLibcxx build: ${required}")
