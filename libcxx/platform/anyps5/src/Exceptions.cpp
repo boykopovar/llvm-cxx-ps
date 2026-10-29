@@ -20,3 +20,15 @@ int uncaught_exceptions() noexcept {
 }
 
 }
+
+#ifdef _WIN32
+#include <atomic>
+#include <new>
+namespace {
+std::atomic<std::new_handler> newHandler{nullptr};
+}
+namespace std {
+new_handler get_new_handler() noexcept { return newHandler.load(); }
+new_handler set_new_handler(new_handler handler) noexcept { return newHandler.exchange(handler); }
+}
+#endif

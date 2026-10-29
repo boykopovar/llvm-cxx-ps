@@ -213,10 +213,14 @@ _LIBCPP_HARDENING_MODE_DEBUG
 #  endif
 
 #  if defined(_WIN32)
-#    define _LIBCPP_WIN32API
+#    if !defined(_LIBCPP_ABI_PS5)
+#      define _LIBCPP_WIN32API
+#    endif
 #    define _LIBCPP_SHORT_WCHAR 1
 // Both MinGW and native MSVC provide a "MSVC"-like environment
-#    define _LIBCPP_MSVCRT_LIKE
+#    if !defined(_LIBCPP_ABI_PS5)
+#      define _LIBCPP_MSVCRT_LIKE
+#    endif
 // If mingw not explicitly detected, assume using MS C runtime only if
 // a MS compatibility version is specified.
 #    if defined(_MSC_VER) && !defined(__MINGW32__)
@@ -227,7 +231,11 @@ _LIBCPP_HARDENING_MODE_DEBUG
 #    else
 #      define _LIBCPP_HAS_BITSCAN64 0
 #    endif
-#    define _LIBCPP_HAS_OPEN_WITH_WCHAR 1
+#    if defined(_LIBCPP_ABI_PS5)
+#      define _LIBCPP_HAS_OPEN_WITH_WCHAR 0
+#    else
+#      define _LIBCPP_HAS_OPEN_WITH_WCHAR 1
+#    endif
 #  else
 #    define _LIBCPP_HAS_OPEN_WITH_WCHAR 0
 #    define _LIBCPP_HAS_BITSCAN64 0
