@@ -50,6 +50,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends clang-18 llvm-18 lld-18 ninja-build
           echo /usr/lib/llvm-18/bin >> "$GITHUB_PATH"
+      - name: Prepare ELF sysroot
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          mkdir -p sysroot downloads
+          curl --fail --location --retry 3 https://deb.debian.org/debian/pool/main/g/glibc/libc6-dev_2.36-9+deb12u14_amd64.deb -o downloads/libc6-dev.deb
+          curl --fail --location --retry 3 https://deb.debian.org/debian/pool/main/l/linux/linux-libc-dev_6.1.176-1_amd64.deb -o downloads/linux-libc-dev.deb
+          echo '0218fc2befcd784c1b0c6292c0a137ce89fad054efaa579ad083bee0f2c01aae  downloads/libc6-dev.deb' | sha256sum --check
+          echo '8bb258735b9dffbb111da778ebdd024750878e435ffd9dfcadcb6762ede6b4cf  downloads/linux-libc-dev.deb' | sha256sum --check
+          dpkg-deb --extract downloads/libc6-dev.deb sysroot
+          dpkg-deb --extract downloads/linux-libc-dev.deb sysroot
       - name: Install Windows tools
         if: runner.os == 'Windows'
         uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e
@@ -87,7 +98,7 @@ jobs:
           if [ "$TARGET_PLATFORM" = windows ]; then
             target_sysroot="$(cygpath -m /mingw64)"
           else
-            target_sysroot=/
+            target_sysroot="$PWD/sysroot"
           fi
           cmake -S libcxx/platform/anyps5 -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
@@ -112,7 +123,7 @@ jobs:
           if [ "$TARGET_PLATFORM" = windows ]; then
             target_sysroot="$(cygpath -m /mingw64)"
           else
-            target_sysroot=/
+            target_sysroot="$PWD/sysroot"
           fi
           cmake -S libcxx/platform/anyps5/tests/PackageConsumer -B build-consumer -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
@@ -122,6 +133,15 @@ jobs:
           cmake --build build-consumer --parallel 4
           llvm-ar t relocated/lib/libanycxx.a > archive-members.txt
           test -s archive-members.txt
+      - name: Check ELF runtime imports
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          llvm-nm --undefined-only relocated/lib/libanycxx.a > runtime-imports.txt
+          if grep -E '__isoc23_|__stack_chk_fail|__fortify_fail' runtime-imports.txt; then
+            echo 'Runtime contains unsupported host libc imports' >&2
+            exit 1
+          fi
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: llvm-cxx-ps-${{ matrix.platform }}-x86_64
