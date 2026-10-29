@@ -28,7 +28,9 @@ set_property(TARGET cxx_static PROPERTY SOURCES "${runtimeSources}")
 target_sources(cxx_static PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_exception.cpp"
-    "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_stdexcept.cpp")
+    "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_stdexcept.cpp"
+    "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_typeinfo.cpp")
+target_compile_definitions(cxx_static PRIVATE __NO_CTYPE __errno_location=_Geterrno)
 target_include_directories(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libc")
 
 target_include_directories(cxx_static PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -36,6 +38,7 @@ add_library(anylibcxx_runtime INTERFACE)
 add_library(AnyLibcxx::Runtime ALIAS anylibcxx_runtime)
 target_compile_features(anylibcxx_runtime INTERFACE cxx_std_20)
 target_compile_options(anylibcxx_runtime INTERFACE -nostdinc++)
+target_compile_definitions(anylibcxx_runtime INTERFACE __NO_CTYPE __errno_location=_Geterrno)
 target_link_options(anylibcxx_runtime INTERFACE -nostdlib++)
 target_link_libraries(anylibcxx_runtime INTERFACE "$<LINK_ONLY:cxx_static>" cxx-headers)
 add_library(anylibcxx_checks OBJECT tests/src/ContainerChecks.cpp)
