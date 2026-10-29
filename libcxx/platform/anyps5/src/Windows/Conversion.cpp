@@ -75,7 +75,7 @@ unsigned long strtoul(const char* value, char** end, int base) {
     const int previous = *_errno();
     *_errno() = 0;
     const auto result = strtoull_nid_postfix(value, end, base);
-    if (*_errno() != 0) return ULONG_MAX;
+    if (*_errno() != 0) return static_cast<unsigned long>(result);
     *_errno() = previous;
     const auto* sign = value;
     while (*sign == ' ' || (*sign >= '\t' && *sign <= '\r')) ++sign;
@@ -93,7 +93,7 @@ unsigned long wcstoul(const wchar_t* value, wchar_t** end, int base) {
     const int previous = *_errno();
     *_errno() = 0;
     const auto result = wcstoull_nid_postfix(value, end, base);
-    if (*_errno() != 0) return ULONG_MAX;
+    if (*_errno() != 0) return static_cast<unsigned long>(result);
     *_errno() = previous;
     const auto* sign = value;
     while (*sign == ' ' || (*sign >= '\t' && *sign <= '\r')) ++sign;
