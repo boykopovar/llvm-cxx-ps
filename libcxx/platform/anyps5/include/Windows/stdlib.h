@@ -6,6 +6,12 @@
 extern "C" {
 #endif
 void* aligned_alloc(size_t, size_t);
+int at_quick_exit(void (*callback)(void));
+#ifdef __cplusplus
+[[noreturn]] void quick_exit(int status);
+#else
+_Noreturn void quick_exit(int status);
+#endif
 #ifdef __cplusplus
 }
 #endif
