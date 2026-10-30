@@ -46,7 +46,7 @@ set_property(TARGET cxx_static PROPERTY SOURCES "${runtimeSources}")
 if(NOT WIN32)
     target_sources(cxx_static PRIVATE src/Scanning.cpp src/Elf/Math.cpp)
 endif()
-set(commonAdapterSources src/Locale.cpp src/Uchar.cpp src/Clock.cpp src/FloatingPoint.cpp src/FloatingPointEnvironment.S src/Adjacent.cpp)
+set(commonAdapterSources src/Locale.cpp src/Uchar.cpp src/Clock.cpp src/Assert.cpp src/FloatingPoint.cpp src/FloatingPointEnvironment.S src/Adjacent.cpp)
 set_source_files_properties(${commonAdapterSources} PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
 target_sources(cxx_static PRIVATE
     ${commonAdapterSources}
@@ -92,6 +92,7 @@ if(WIN32)
         src/Windows/Conversion.cpp
         src/Windows/ExceptionTransport.cpp
         src/Windows/Formatting.cpp
+        src/Windows/Unavailable.cpp
     )
     target_sources(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/private_typeinfo.cpp" "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp" ${windowsAdapterSources})
     set_source_files_properties(${windowsAdapterSources} PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
@@ -118,7 +119,7 @@ if(WIN32)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/WindowsImports.cmake" "set(ANYLIBCXX_WINDOWS_IMPORTS \"${windowsImports}\")\n")
 endif()
 
-foreach(header AnyLibcxxMbState.h AnyLibcxxMbCurMax.h locale.h errno.h uchar.h fenv.h)
+foreach(header AnyLibcxxMbState.h AnyLibcxxMbCurMax.h locale.h errno.h assert.h uchar.h fenv.h)
     configure_file("include/Common/${header}" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/llvm-project/runtimes/include/anyps5/${header}" COPYONLY)
 endforeach()
 install(DIRECTORY include/Common/ DESTINATION include/anyps5 COMPONENT cxx-headers)
