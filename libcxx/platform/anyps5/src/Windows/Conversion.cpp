@@ -11,8 +11,8 @@ float __attribute__((sysv_abi)) strtof_nid_postfix(const char* value, char** end
 float strtof(const char* value, char** end) { return strtof_nid_postfix(value, end); }
 double __attribute__((sysv_abi)) strtod_nid_postfix(const char* value, char** end);
 double strtod(const char* value, char** end) { return strtod_nid_postfix(value, end); }
-long double __attribute__((sysv_abi)) strtold_nid_postfix(const char* value, char** end);
-long double strtold(const char* value, char** end) { return strtold_nid_postfix(value, end); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_strtold(const char* value, char** end);
+long double strtold(const char* value, char** end) { return AnyLibcxxGuest_strtold(value, end); }
 long long __attribute__((sysv_abi)) strtoll_nid_postfix(const char* value, char** end, int base);
 long long strtoll(const char* value, char** end, int base) { return strtoll_nid_postfix(value, end, base); }
 unsigned long long __attribute__((sysv_abi)) strtoull_nid_postfix(const char* value, char** end, int base);
@@ -21,8 +21,8 @@ float __attribute__((sysv_abi)) wcstof_nid_postfix(const wchar_t* value, wchar_t
 float wcstof(const wchar_t* value, wchar_t** end) { return wcstof_nid_postfix(value, end); }
 double __attribute__((sysv_abi)) wcstod_nid_postfix(const wchar_t* value, wchar_t** end);
 double wcstod(const wchar_t* value, wchar_t** end) { return wcstod_nid_postfix(value, end); }
-long double __attribute__((sysv_abi)) wcstold_nid_postfix(const wchar_t* value, wchar_t** end);
-long double wcstold(const wchar_t* value, wchar_t** end) { return wcstold_nid_postfix(value, end); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_wcstold(const wchar_t* value, wchar_t** end);
+long double wcstold(const wchar_t* value, wchar_t** end) { return AnyLibcxxGuest_wcstold(value, end); }
 long long __attribute__((sysv_abi)) wcstoll_nid_postfix(const wchar_t* value, wchar_t** end, int base);
 long long wcstoll(const wchar_t* value, wchar_t** end, int base) { return wcstoll_nid_postfix(value, end, base); }
 unsigned long long __attribute__((sysv_abi)) wcstoull_nid_postfix(const wchar_t* value, wchar_t** end, int base);

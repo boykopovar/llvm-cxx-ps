@@ -1,4 +1,7 @@
+#include <limits.h>
+
 extern "C" {
+int __attribute__((sysv_abi)) feraiseexcept_nid_postfix(int exceptions);
 double __attribute__((sysv_abi)) acos_nid_postfix(double value);
 double acos(double value) { return acos_nid_postfix(value); }
 double __attribute__((sysv_abi)) asin_nid_postfix(double value);
@@ -100,9 +103,9 @@ long long llround(double value) { return llround_nid_postfix(value); }
 long long __attribute__((sysv_abi)) llrint_nid_postfix(double value);
 long long llrint(double value) { return llrint_nid_postfix(value); }
 long long __attribute__((sysv_abi)) lround_nid_postfix(double value);
-long lround(double value) { return static_cast<long>(lround_nid_postfix(value)); }
+long lround(double value) { const auto result = lround_nid_postfix(value); if (result < LONG_MIN || result > LONG_MAX) { feraiseexcept_nid_postfix(1); return LONG_MIN; } return static_cast<long>(result); }
 long long __attribute__((sysv_abi)) lrint_nid_postfix(double value);
-long lrint(double value) { return static_cast<long>(lrint_nid_postfix(value)); }
+long lrint(double value) { const auto result = lrint_nid_postfix(value); if (result < LONG_MIN || result > LONG_MAX) { feraiseexcept_nid_postfix(1); return LONG_MIN; } return static_cast<long>(result); }
 double __attribute__((sysv_abi)) scalbln_nid_postfix(double value, long long exponent);
 double scalbln(double value, long exponent) { return scalbln_nid_postfix(value, exponent); }
 float __attribute__((sysv_abi)) acosf_nid_postfix(float value);
@@ -206,105 +209,105 @@ long long llroundf(float value) { return llroundf_nid_postfix(value); }
 long long __attribute__((sysv_abi)) llrintf_nid_postfix(float value);
 long long llrintf(float value) { return llrintf_nid_postfix(value); }
 long long __attribute__((sysv_abi)) lroundf_nid_postfix(float value);
-long lroundf(float value) { return static_cast<long>(lroundf_nid_postfix(value)); }
+long lroundf(float value) { const auto result = lroundf_nid_postfix(value); if (result < LONG_MIN || result > LONG_MAX) { feraiseexcept_nid_postfix(1); return LONG_MIN; } return static_cast<long>(result); }
 long long __attribute__((sysv_abi)) lrintf_nid_postfix(float value);
-long lrintf(float value) { return static_cast<long>(lrintf_nid_postfix(value)); }
+long lrintf(float value) { const auto result = lrintf_nid_postfix(value); if (result < LONG_MIN || result > LONG_MAX) { feraiseexcept_nid_postfix(1); return LONG_MIN; } return static_cast<long>(result); }
 float __attribute__((sysv_abi)) scalblnf_nid_postfix(float value, long long exponent);
 float scalblnf(float value, long exponent) { return scalblnf_nid_postfix(value, exponent); }
-long double __attribute__((sysv_abi)) acosl_nid_postfix(long double value);
-long double acosl(long double value) { return acosl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) asinl_nid_postfix(long double value);
-long double asinl(long double value) { return asinl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) atanl_nid_postfix(long double value);
-long double atanl(long double value) { return atanl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) acoshl_nid_postfix(long double value);
-long double acoshl(long double value) { return acoshl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) asinhl_nid_postfix(long double value);
-long double asinhl(long double value) { return asinhl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) atanhl_nid_postfix(long double value);
-long double atanhl(long double value) { return atanhl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) cosl_nid_postfix(long double value);
-long double cosl(long double value) { return cosl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) sinl_nid_postfix(long double value);
-long double sinl(long double value) { return sinl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) tanl_nid_postfix(long double value);
-long double tanl(long double value) { return tanl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) coshl_nid_postfix(long double value);
-long double coshl(long double value) { return coshl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) sinhl_nid_postfix(long double value);
-long double sinhl(long double value) { return sinhl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) tanhl_nid_postfix(long double value);
-long double tanhl(long double value) { return tanhl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) expl_nid_postfix(long double value);
-long double expl(long double value) { return expl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) exp2l_nid_postfix(long double value);
-long double exp2l(long double value) { return exp2l_nid_postfix(value); }
-long double __attribute__((sysv_abi)) expm1l_nid_postfix(long double value);
-long double expm1l(long double value) { return expm1l_nid_postfix(value); }
-long double __attribute__((sysv_abi)) logl_nid_postfix(long double value);
-long double logl(long double value) { return logl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) log10l_nid_postfix(long double value);
-long double log10l(long double value) { return log10l_nid_postfix(value); }
-long double __attribute__((sysv_abi)) log2l_nid_postfix(long double value);
-long double log2l(long double value) { return log2l_nid_postfix(value); }
-long double __attribute__((sysv_abi)) log1pl_nid_postfix(long double value);
-long double log1pl(long double value) { return log1pl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) logbl_nid_postfix(long double value);
-long double logbl(long double value) { return logbl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) sqrtl_nid_postfix(long double value);
-long double sqrtl(long double value) { return sqrtl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) cbrtl_nid_postfix(long double value);
-long double cbrtl(long double value) { return cbrtl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) erfl_nid_postfix(long double value);
-long double erfl(long double value) { return erfl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) erfcl_nid_postfix(long double value);
-long double erfcl(long double value) { return erfcl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) ceill_nid_postfix(long double value);
-long double ceill(long double value) { return ceill_nid_postfix(value); }
-long double __attribute__((sysv_abi)) floorl_nid_postfix(long double value);
-long double floorl(long double value) { return floorl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) truncl_nid_postfix(long double value);
-long double truncl(long double value) { return truncl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) roundl_nid_postfix(long double value);
-long double roundl(long double value) { return roundl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) nearbyintl_nid_postfix(long double value);
-long double nearbyintl(long double value) { return nearbyintl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) rintl_nid_postfix(long double value);
-long double rintl(long double value) { return rintl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) fabsl_nid_postfix(long double value);
-long double fabsl(long double value) { return fabsl_nid_postfix(value); }
-long double __attribute__((sysv_abi)) atan2l_nid_postfix(long double left, long double right);
-long double atan2l(long double left, long double right) { return atan2l_nid_postfix(left, right); }
-long double __attribute__((sysv_abi)) powl_nid_postfix(long double left, long double right);
-long double powl(long double left, long double right) { return powl_nid_postfix(left, right); }
-long double __attribute__((sysv_abi)) hypotl_nid_postfix(long double left, long double right);
-long double hypotl(long double left, long double right) { return hypotl_nid_postfix(left, right); }
-long double __attribute__((sysv_abi)) fmodl_nid_postfix(long double left, long double right);
-long double fmodl(long double left, long double right) { return fmodl_nid_postfix(left, right); }
-long double __attribute__((sysv_abi)) remainderl_nid_postfix(long double left, long double right);
-long double remainderl(long double left, long double right) { return remainderl_nid_postfix(left, right); }
-long double __attribute__((sysv_abi)) copysignl_nid_postfix(long double left, long double right);
-long double copysignl(long double left, long double right) { return copysignl_nid_postfix(left, right); }
-long double __attribute__((sysv_abi)) fdiml_nid_postfix(long double left, long double right);
-long double fdiml(long double left, long double right) { return fdiml_nid_postfix(left, right); }
-long double __attribute__((sysv_abi)) fmaxl_nid_postfix(long double left, long double right);
-long double fmaxl(long double left, long double right) { return fmaxl_nid_postfix(left, right); }
-long double __attribute__((sysv_abi)) fminl_nid_postfix(long double left, long double right);
-long double fminl(long double left, long double right) { return fminl_nid_postfix(left, right); }
-long double __attribute__((sysv_abi)) fmal_nid_postfix(long double left, long double right, long double addend);
-long double fmal(long double left, long double right, long double addend) { return fmal_nid_postfix(left, right, addend); }
-long double __attribute__((sysv_abi)) ldexpl_nid_postfix(long double value, int exponent);
-long double ldexpl(long double value, int exponent) { return ldexpl_nid_postfix(value, exponent); }
-long double __attribute__((sysv_abi)) scalbnl_nid_postfix(long double value, int exponent);
-long double scalbnl(long double value, int exponent) { return scalbnl_nid_postfix(value, exponent); }
-long double __attribute__((sysv_abi)) frexpl_nid_postfix(long double value, int* exponent);
-long double frexpl(long double value, int* exponent) { return frexpl_nid_postfix(value, exponent); }
-long double __attribute__((sysv_abi)) modfl_nid_postfix(long double value, long double* integral);
-long double modfl(long double value, long double* integral) { return modfl_nid_postfix(value, integral); }
-long double __attribute__((sysv_abi)) remquol_nid_postfix(long double left, long double right, int* quotient);
-long double remquol(long double left, long double right, int* quotient) { return remquol_nid_postfix(left, right, quotient); }
-long double __attribute__((sysv_abi)) nanl_nid_postfix(const char* payload);
-long double nanl(const char* payload) { return nanl_nid_postfix(payload); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_acosl(long double value);
+long double acosl(long double value) { return AnyLibcxxGuest_acosl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_asinl(long double value);
+long double asinl(long double value) { return AnyLibcxxGuest_asinl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_atanl(long double value);
+long double atanl(long double value) { return AnyLibcxxGuest_atanl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_acoshl(long double value);
+long double acoshl(long double value) { return AnyLibcxxGuest_acoshl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_asinhl(long double value);
+long double asinhl(long double value) { return AnyLibcxxGuest_asinhl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_atanhl(long double value);
+long double atanhl(long double value) { return AnyLibcxxGuest_atanhl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_cosl(long double value);
+long double cosl(long double value) { return AnyLibcxxGuest_cosl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_sinl(long double value);
+long double sinl(long double value) { return AnyLibcxxGuest_sinl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_tanl(long double value);
+long double tanl(long double value) { return AnyLibcxxGuest_tanl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_coshl(long double value);
+long double coshl(long double value) { return AnyLibcxxGuest_coshl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_sinhl(long double value);
+long double sinhl(long double value) { return AnyLibcxxGuest_sinhl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_tanhl(long double value);
+long double tanhl(long double value) { return AnyLibcxxGuest_tanhl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_expl(long double value);
+long double expl(long double value) { return AnyLibcxxGuest_expl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_exp2l(long double value);
+long double exp2l(long double value) { return AnyLibcxxGuest_exp2l(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_expm1l(long double value);
+long double expm1l(long double value) { return AnyLibcxxGuest_expm1l(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_logl(long double value);
+long double logl(long double value) { return AnyLibcxxGuest_logl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_log10l(long double value);
+long double log10l(long double value) { return AnyLibcxxGuest_log10l(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_log2l(long double value);
+long double log2l(long double value) { return AnyLibcxxGuest_log2l(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_log1pl(long double value);
+long double log1pl(long double value) { return AnyLibcxxGuest_log1pl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_logbl(long double value);
+long double logbl(long double value) { return AnyLibcxxGuest_logbl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_sqrtl(long double value);
+long double sqrtl(long double value) { return AnyLibcxxGuest_sqrtl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_cbrtl(long double value);
+long double cbrtl(long double value) { return AnyLibcxxGuest_cbrtl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_erfl(long double value);
+long double erfl(long double value) { return AnyLibcxxGuest_erfl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_erfcl(long double value);
+long double erfcl(long double value) { return AnyLibcxxGuest_erfcl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_ceill(long double value);
+long double ceill(long double value) { return AnyLibcxxGuest_ceill(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_floorl(long double value);
+long double floorl(long double value) { return AnyLibcxxGuest_floorl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_truncl(long double value);
+long double truncl(long double value) { return AnyLibcxxGuest_truncl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_roundl(long double value);
+long double roundl(long double value) { return AnyLibcxxGuest_roundl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_nearbyintl(long double value);
+long double nearbyintl(long double value) { return AnyLibcxxGuest_nearbyintl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_rintl(long double value);
+long double rintl(long double value) { return AnyLibcxxGuest_rintl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_fabsl(long double value);
+long double fabsl(long double value) { return AnyLibcxxGuest_fabsl(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_atan2l(long double left, long double right);
+long double atan2l(long double left, long double right) { return AnyLibcxxGuest_atan2l(left, right); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_powl(long double left, long double right);
+long double powl(long double left, long double right) { return AnyLibcxxGuest_powl(left, right); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_hypotl(long double left, long double right);
+long double hypotl(long double left, long double right) { return AnyLibcxxGuest_hypotl(left, right); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_fmodl(long double left, long double right);
+long double fmodl(long double left, long double right) { return AnyLibcxxGuest_fmodl(left, right); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_remainderl(long double left, long double right);
+long double remainderl(long double left, long double right) { return AnyLibcxxGuest_remainderl(left, right); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_copysignl(long double left, long double right);
+long double copysignl(long double left, long double right) { return AnyLibcxxGuest_copysignl(left, right); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_fdiml(long double left, long double right);
+long double fdiml(long double left, long double right) { return AnyLibcxxGuest_fdiml(left, right); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_fmaxl(long double left, long double right);
+long double fmaxl(long double left, long double right) { return AnyLibcxxGuest_fmaxl(left, right); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_fminl(long double left, long double right);
+long double fminl(long double left, long double right) { return AnyLibcxxGuest_fminl(left, right); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_fmal(long double left, long double right, long double addend);
+long double fmal(long double left, long double right, long double addend) { return AnyLibcxxGuest_fmal(left, right, addend); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_ldexpl(long double value, int exponent);
+long double ldexpl(long double value, int exponent) { return AnyLibcxxGuest_ldexpl(value, exponent); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_scalbnl(long double value, int exponent);
+long double scalbnl(long double value, int exponent) { return AnyLibcxxGuest_scalbnl(value, exponent); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_frexpl(long double value, int* exponent);
+long double frexpl(long double value, int* exponent) { return AnyLibcxxGuest_frexpl(value, exponent); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_modfl(long double value, long double* integral);
+long double modfl(long double value, long double* integral) { return AnyLibcxxGuest_modfl(value, integral); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_remquol(long double left, long double right, int* quotient);
+long double remquol(long double left, long double right, int* quotient) { return AnyLibcxxGuest_remquol(left, right, quotient); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_nanl(const char* payload);
+long double nanl(const char* payload) { return AnyLibcxxGuest_nanl(payload); }
 int __attribute__((sysv_abi)) ilogbl_nid_postfix(long double value);
 int ilogbl(long double value) { return ilogbl_nid_postfix(value); }
 long long __attribute__((sysv_abi)) llroundl_nid_postfix(long double value);
@@ -312,23 +315,23 @@ long long llroundl(long double value) { return llroundl_nid_postfix(value); }
 long long __attribute__((sysv_abi)) llrintl_nid_postfix(long double value);
 long long llrintl(long double value) { return llrintl_nid_postfix(value); }
 long long __attribute__((sysv_abi)) lroundl_nid_postfix(long double value);
-long lroundl(long double value) { return static_cast<long>(lroundl_nid_postfix(value)); }
+long lroundl(long double value) { const auto result = lroundl_nid_postfix(value); if (result < LONG_MIN || result > LONG_MAX) { feraiseexcept_nid_postfix(1); return LONG_MIN; } return static_cast<long>(result); }
 long long __attribute__((sysv_abi)) lrintl_nid_postfix(long double value);
-long lrintl(long double value) { return static_cast<long>(lrintl_nid_postfix(value)); }
-long double __attribute__((sysv_abi)) scalblnl_nid_postfix(long double value, long long exponent);
-long double scalblnl(long double value, long exponent) { return scalblnl_nid_postfix(value, exponent); }
+long lrintl(long double value) { const auto result = lrintl_nid_postfix(value); if (result < LONG_MIN || result > LONG_MAX) { feraiseexcept_nid_postfix(1); return LONG_MIN; } return static_cast<long>(result); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_scalblnl(long double value, long long exponent);
+long double scalblnl(long double value, long exponent) { return AnyLibcxxGuest_scalblnl(value, exponent); }
 double __attribute__((sysv_abi)) lgamma_nid_postfix(double value);
 double lgamma(double value) { return lgamma_nid_postfix(value); }
-long double __attribute__((sysv_abi)) lgammal_nid_postfix(long double value);
-long double lgammal(long double value) { return lgammal_nid_postfix(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_lgammal(long double value);
+long double lgammal(long double value) { return AnyLibcxxGuest_lgammal(value); }
 float __attribute__((sysv_abi)) tgammaf_nid_postfix(float value);
 float tgammaf(float value) { return tgammaf_nid_postfix(value); }
-long double __attribute__((sysv_abi)) tgammal_nid_postfix(long double value);
-long double tgammal(long double value) { return tgammal_nid_postfix(value); }
+long double __attribute__((sysv_abi)) AnyLibcxxGuest_tgammal(long double value);
+long double tgammal(long double value) { return AnyLibcxxGuest_tgammal(value); }
 double __attribute__((sysv_abi)) nextafter_nid_postfix(double value, double direction);
 double nextafter(double value, double direction) { return nextafter_nid_postfix(value, direction); }
 float __attribute__((sysv_abi)) nextafterf_nid_postfix(float value, float direction);
 float nextafterf(float value, float direction) { return nextafterf_nid_postfix(value, direction); }
-double tgamma(double value) { return static_cast<double>(tgammal_nid_postfix(value)); }
+double tgamma(double value) { return static_cast<double>(AnyLibcxxGuest_tgammal(value)); }
 float lgammaf(float value) { return static_cast<float>(lgamma_nid_postfix(value)); }
 }
