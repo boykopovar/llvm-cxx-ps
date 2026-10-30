@@ -44,12 +44,12 @@ if(WIN32)
 endif()
 set_property(TARGET cxx_static PROPERTY SOURCES "${runtimeSources}")
 if(NOT WIN32)
-    target_sources(cxx_static PRIVATE src/Scanning.cpp)
+    target_sources(cxx_static PRIVATE src/Scanning.cpp src/Elf/Math.cpp)
 endif()
+set(commonAdapterSources src/Locale.cpp src/Uchar.cpp src/Clock.cpp src/FloatingPoint.cpp src/FloatingPointEnvironment.S src/Adjacent.cpp)
+set_source_files_properties(${commonAdapterSources} PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
 target_sources(cxx_static PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/Locale.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/Uchar.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/Clock.cpp"
+    ${commonAdapterSources}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_exception.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_stdexcept.cpp"
@@ -75,48 +75,56 @@ target_include_directories(anylibcxx_checks PRIVATE tests/include)
 target_link_libraries(anylibcxx_checks PRIVATE AnyLibcxx::Runtime)
 
 if(WIN32)
-    target_sources(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/private_typeinfo.cpp" "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp" src/Windows/Math.cpp src/Windows/Strings.cpp src/Windows/Wide.cpp src/Windows/Jump.S src/Windows/AtExit.cpp src/Windows/QuickExit.cpp src/Windows/Exit.cpp src/Windows/Search.cpp src/Windows/Numbers.cpp src/Windows/GuestLongDouble.S src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Time.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp)
-    set_source_files_properties(src/Windows/Math.cpp src/Windows/Strings.cpp src/Windows/Wide.cpp src/Windows/Jump.S src/Windows/AtExit.cpp src/Windows/QuickExit.cpp src/Windows/Exit.cpp src/Windows/Search.cpp src/Windows/Numbers.cpp src/Windows/GuestLongDouble.S src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Time.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
+    set(windowsAdapterSources
+        src/Windows/Math.cpp
+        src/Windows/Strings.cpp
+        src/Windows/Wide.cpp
+        src/Windows/Jump.S
+        src/Windows/AtExit.cpp
+        src/Windows/QuickExit.cpp
+        src/Windows/Exit.cpp
+        src/Windows/Search.cpp
+        src/Windows/Numbers.cpp
+        src/Windows/Time.cpp
+        src/Windows/GuestLongDouble.S
+        src/Windows/Memory.cpp
+        src/Windows/Stdio.cpp
+        src/Windows/Conversion.cpp
+        src/Windows/ExceptionTransport.cpp
+        src/Windows/Formatting.cpp
+    )
+    target_sources(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/private_typeinfo.cpp" "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp" ${windowsAdapterSources})
+    set_source_files_properties(${windowsAdapterSources} PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
 endif()
 
 if(WIN32)
-    foreach(header stdio.h stdlib.h wchar.h wctype.h corecrt.h fenv.h setjmp.h)
+    foreach(header stdio.h stdlib.h wchar.h wctype.h corecrt.h setjmp.h)
         configure_file("include/Windows/${header}" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/llvm-project/runtimes/include/anyps5/${header}" COPYONLY)
     endforeach()
     install(DIRECTORY include/Windows/ DESTINATION include/anyps5 COMPONENT cxx-headers)
     target_compile_options(cxx_static PRIVATE -ffunction-sections -fdata-sections)
     target_include_directories(anylibcxx_runtime SYSTEM BEFORE INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include/Windows")
     target_compile_definitions(anylibcxx_runtime INTERFACE _CRTIMP= __USE_MINGW_ANSI_STDIO=0 __MSVCRT_VERSION__=0x700 _CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES=0)
-    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Locale.cpp")
-    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Locale.cpp" localeSource)
-    string(REGEX MATCHALL "[A-Za-z_][A-Za-z0-9_]*_nid_postfix" windowsImports "${localeSource}")
-    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Uchar.cpp")
-    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Uchar.cpp" ucharSource)
-    string(REGEX MATCHALL "[A-Za-z_][A-Za-z0-9_]*_nid_postfix" ucharImports "${ucharSource}")
-    list(APPEND windowsImports ${ucharImports})
-    foreach(source Math FloatingPoint Adjacent Strings Wide AtExit QuickExit Exit Search Numbers Memory Stdio Time Conversion ExceptionTransport Formatting)
-        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/${source}.cpp")
-        file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/${source}.cpp" sourceText)
+    set(windowsImports)
+    foreach(source IN LISTS commonAdapterSources windowsAdapterSources)
+        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
+        file(READ "${CMAKE_CURRENT_SOURCE_DIR}/${source}" sourceText)
         string(REGEX MATCHALL "[A-Za-z_][A-Za-z0-9_]*_nid_postfix" sourceImports "${sourceText}")
         list(APPEND windowsImports ${sourceImports})
     endforeach()
-    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/GuestLongDouble.S")
-    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/GuestLongDouble.S" guestLongDoubleSource)
-    string(REGEX MATCHALL "[A-Za-z_][A-Za-z0-9_]*_nid_postfix" guestLongDoubleImports "${guestLongDoubleSource}")
-    list(APPEND windowsImports ${guestLongDoubleImports})
     list(REMOVE_DUPLICATES windowsImports)
     list(REMOVE_ITEM windowsImports __stdinp_nid_postfix __stdoutp_nid_postfix __stderrp_nid_postfix)
     list(APPEND windowsImports "__stdinp_nid_postfix DATA" "__stdoutp_nid_postfix DATA" "__stderrp_nid_postfix DATA")
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/WindowsImports.cmake" "set(ANYLIBCXX_WINDOWS_IMPORTS \"${windowsImports}\")\n")
 endif()
 
-foreach(header AnyLibcxxMbState.h AnyLibcxxMbCurMax.h locale.h errno.h uchar.h)
+foreach(header AnyLibcxxMbState.h AnyLibcxxMbCurMax.h locale.h errno.h uchar.h fenv.h)
     configure_file("include/Common/${header}" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/llvm-project/runtimes/include/anyps5/${header}" COPYONLY)
 endforeach()
 install(DIRECTORY include/Common/ DESTINATION include/anyps5 COMPONENT cxx-headers)
 target_include_directories(anylibcxx_runtime SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include/Common")
 if(NOT WIN32)
-    foreach(header bits/types/__mbstate_t.h stdlib.h)
+    foreach(header bits/types/__mbstate_t.h stdlib.h stdio.h)
         configure_file("include/Elf/${header}" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/llvm-project/runtimes/include/anyps5/${header}" COPYONLY)
     endforeach()
     install(DIRECTORY include/Elf/ DESTINATION include/anyps5 COMPONENT cxx-headers)

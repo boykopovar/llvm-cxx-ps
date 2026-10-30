@@ -1,5 +1,6 @@
 #include <cstdarg>
 #include <cstdio>
+#include <cwchar>
 
 extern "C" {
 int AnyLibcxxVsscanf(const char* input, const char* format, va_list arguments) __asm__("vsscanf");
@@ -30,6 +31,36 @@ int __isoc99_scanf(const char* format, ...) {
     va_list arguments;
     va_start(arguments, format);
     const auto result = AnyLibcxxVscanf(format, arguments);
+    va_end(arguments);
+    return result;
+}
+
+int AnyLibcxxVswscanf(const wchar_t* input, const wchar_t* format, va_list arguments) __asm__("vswscanf");
+int __isoc99_vswscanf(const wchar_t* input, const wchar_t* format, va_list arguments) { return AnyLibcxxVswscanf(input, format, arguments); }
+int __isoc99_swscanf(const wchar_t* input, const wchar_t* format, ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    const auto result = AnyLibcxxVswscanf(input, format, arguments);
+    va_end(arguments);
+    return result;
+}
+
+int AnyLibcxxVfwscanf(std::FILE* stream, const wchar_t* format, va_list arguments) __asm__("vfwscanf");
+int __isoc99_vfwscanf(std::FILE* stream, const wchar_t* format, va_list arguments) { return AnyLibcxxVfwscanf(stream, format, arguments); }
+int __isoc99_fwscanf(std::FILE* stream, const wchar_t* format, ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    const auto result = AnyLibcxxVfwscanf(stream, format, arguments);
+    va_end(arguments);
+    return result;
+}
+
+int AnyLibcxxVwscanf(const wchar_t* format, va_list arguments) __asm__("vwscanf");
+int __isoc99_vwscanf(const wchar_t* format, va_list arguments) { return AnyLibcxxVwscanf(format, arguments); }
+int __isoc99_wscanf(const wchar_t* format, ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    const auto result = AnyLibcxxVwscanf(format, arguments);
     va_end(arguments);
     return result;
 }

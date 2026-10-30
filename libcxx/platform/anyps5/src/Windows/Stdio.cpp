@@ -70,6 +70,8 @@ long ftell(FILE* stream) {
     if (result > LONG_MAX) { errno = ERANGE; return -1; }
     return static_cast<long>(result);
 }
+FILE* __attribute__((sysv_abi)) fdopen_nid_postfix(int descriptor, const char* mode);
+FILE* fdopen(int descriptor, const char* mode) { return fdopen_nid_postfix(descriptor, mode); }
 int __attribute__((sysv_abi)) fileno_nid_postfix(FILE* stream);
 int fileno(FILE* stream) { return fileno_nid_postfix(stream); }
 int __attribute__((sysv_abi)) fgetpos_nid_postfix(FILE* stream, long long* position);
