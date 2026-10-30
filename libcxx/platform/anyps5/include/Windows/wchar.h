@@ -9,8 +9,7 @@
 #define WCHAR_MAX 65535
 #undef WEOF
 #define WEOF ((wint_t)0xffffffffu)
-#include <AnyLibcxxMbState.h>
-typedef AnyLibcxxMbState mbstate_t;
+#include <corecrt.h>
 struct tm;
 #ifdef __cplusplus
 extern "C" {

@@ -4,5 +4,10 @@
 #define _WCTYPE_T_DEFINED
 typedef unsigned int wint_t;
 typedef unsigned long long wctype_t;
+#define mbstate_t AnyLibcxxHostMbState
 #include_next <corecrt.h>
+#undef mbstate_t
+#define _INC_CORECRT_WSTRING
+#include <AnyLibcxxMbState.h>
+typedef AnyLibcxxMbState mbstate_t;
 #endif
