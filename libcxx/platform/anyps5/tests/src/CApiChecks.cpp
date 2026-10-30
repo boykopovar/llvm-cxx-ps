@@ -60,6 +60,14 @@ void RunCApiChecks() {
     require(__umodti3(numerator, 16) == 7);
     require(std::strtold("1.25", nullptr) == 1.25L);
     require(std::wcstold(L"1.25", nullptr) == 1.25L);
+    std::jmp_buf environment;
+    volatile int entered = 0;
+    const int jumpResult = setjmp(environment);
+    if (jumpResult == 0) {
+        entered = 1;
+        std::longjmp(environment, 42);
+    }
+    require(entered == 1 && jumpResult == 42);
     static_assert(sizeof(std::mbstate_t) == 16);
     require(std::setlocale(LC_ALL, "C") != nullptr);
     require(MB_CUR_MAX >= 1);

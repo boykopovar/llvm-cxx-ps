@@ -418,3 +418,4 @@ auto volatile AnyLibcxxReference_system = &std::system;
 auto volatile AnyLibcxxReference_raise = &std::raise;
 auto volatile AnyLibcxxReference_signal = &std::signal;
 auto volatile AnyLibcxxReference_longjmp = &std::longjmp;
+auto volatile AnyLibcxxReference_setjmp = &::setjmp;
