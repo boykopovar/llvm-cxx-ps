@@ -4,6 +4,8 @@
 #include <cerrno>
 #include <stdio.h>
 #include <wchar.h>
+#undef getwc
+#undef putwc
 
 extern "C" {
 FILE* __attribute__((sysv_abi)) fopen_nid_postfix(const char* path, const char* mode);
@@ -28,12 +30,12 @@ int __attribute__((sysv_abi)) fputs_nid_postfix(const char* value, FILE* stream)
 int fputs(const char* value, FILE* stream) { return fputs_nid_postfix(value, stream); }
 int __attribute__((sysv_abi)) ungetc_nid_postfix(int value, FILE* stream);
 int ungetc(int value, FILE* stream) { return ungetc_nid_postfix(value, stream); }
-wint_t __attribute__((sysv_abi)) fgetwc_nid_postfix(FILE* stream);
+int __attribute__((sysv_abi)) fgetwc_nid_postfix(FILE* stream);
 wint_t fgetwc(FILE* stream) { return fgetwc_nid_postfix(stream); }
-wint_t __attribute__((sysv_abi)) fputwc_nid_postfix(wchar_t value, FILE* stream);
+int __attribute__((sysv_abi)) fputwc_nid_postfix(wchar_t value, FILE* stream);
 wint_t fputwc(wchar_t value, FILE* stream) { return fputwc_nid_postfix(value, stream); }
 wint_t __attribute__((sysv_abi)) ungetwc_nid_postfix(wint_t value, FILE* stream);
-wint_t ungetwc(wint_t value, FILE* stream) { return ungetwc_nid_postfix(value, stream); }
+wint_t ungetwc(wint_t value, FILE* stream) { return ungetwc_nid_postfix(value == WEOF ? -1 : value, stream); }
 void __attribute__((sysv_abi)) setbuf_nid_postfix(FILE* stream, char* buffer);
 void setbuf(FILE* stream, char* buffer) { return setbuf_nid_postfix(stream, buffer); }
 int __attribute__((sysv_abi)) setvbuf_nid_postfix(FILE* stream, char* buffer, int mode, size_t size);
@@ -70,4 +72,25 @@ long ftell(FILE* stream) {
 }
 int __attribute__((sysv_abi)) fileno_nid_postfix(FILE* stream);
 int fileno(FILE* stream) { return fileno_nid_postfix(stream); }
+int __attribute__((sysv_abi)) fgetpos_nid_postfix(FILE* stream, long long* position);
+int fgetpos(FILE* stream, fpos_t* position) { return fgetpos_nid_postfix(stream, position); }
+int __attribute__((sysv_abi)) fsetpos_nid_postfix(FILE* stream, const long long* position);
+int fsetpos(FILE* stream, const fpos_t* position) { return fsetpos_nid_postfix(stream, position); }
+void __attribute__((sysv_abi)) rewind_nid_postfix(FILE* stream);
+void rewind(FILE* stream) { rewind_nid_postfix(stream); }
+char* __attribute__((sysv_abi)) fgets_nid_postfix(char* target, int capacity, FILE* stream);
+char* fgets(char* target, int capacity, FILE* stream) { return fgets_nid_postfix(target, capacity, stream); }
+wchar_t* __attribute__((sysv_abi)) fgetws_nid_postfix(wchar_t* target, int capacity, FILE* stream);
+wchar_t* fgetws(wchar_t* target, int capacity, FILE* stream) { return fgetws_nid_postfix(target, capacity, stream); }
+int __attribute__((sysv_abi)) fputws_nid_postfix(const wchar_t* value, FILE* stream);
+int fputws(const wchar_t* value, FILE* stream) { return fputws_nid_postfix(value, stream); }
+int __attribute__((sysv_abi)) puts_nid_postfix(const char* value);
+int puts(const char* value) { return puts_nid_postfix(value); }
+void __attribute__((sysv_abi)) perror_nid_postfix(const char* prefix);
+void perror(const char* prefix) { perror_nid_postfix(prefix); }
+int getchar() { return fgetc(stdin); }
+int putchar(int value) { return fputc(value, stdout); }
+int putc(int value, FILE* stream) { return fputc(value, stream); }
+wint_t getwc(FILE* stream) { return fgetwc(stream); }
+wint_t putwc(wchar_t value, FILE* stream) { return fputwc(value, stream); }
 }

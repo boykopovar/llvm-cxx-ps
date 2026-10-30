@@ -127,4 +127,20 @@ int scanf(const char* format, ...) {
     va_end(arguments);
     return result;
 }
+int vwprintf(const wchar_t* format, va_list arguments) { return vfwprintf(stdout, format, arguments); }
+int vwscanf(const wchar_t* format, va_list arguments) { return vfwscanf(stdin, format, arguments); }
+int wprintf(const wchar_t* format, ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    const auto result = vwprintf(format, arguments);
+    va_end(arguments);
+    return result;
+}
+int wscanf(const wchar_t* format, ...) {
+    va_list arguments;
+    va_start(arguments, format);
+    const auto result = vwscanf(format, arguments);
+    va_end(arguments);
+    return result;
+}
 }
