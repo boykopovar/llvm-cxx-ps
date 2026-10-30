@@ -104,10 +104,6 @@ unsigned long wcstoul(const wchar_t* value, wchar_t** end, int base) {
 [[noreturn]] void __attribute__((sysv_abi)) abort_nid_postfix();
 [[noreturn]] void abort() { abort_nid_postfix(); }
 
-float __attribute__((sysv_abi)) ceilf_nid_postfix(float value);
-float ceilf(float value) { return ceilf_nid_postfix(value); }
-double __attribute__((sysv_abi)) hypot_nid_postfix(double left, double right);
-double hypot(double left, double right) { return hypot_nid_postfix(left, right); }
 __uint128_t __attribute__((sysv_abi)) __udivti3_nid_postfix(__uint128_t left, __uint128_t right);
 __uint128_t __attribute__((sysv_abi)) __umodti3_nid_postfix(__uint128_t left, __uint128_t right);
 __uint128_t __udivti3(__uint128_t left, __uint128_t right) { return __udivti3_nid_postfix(left, right); }

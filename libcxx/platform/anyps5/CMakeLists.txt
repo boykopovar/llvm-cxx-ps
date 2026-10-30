@@ -68,8 +68,8 @@ target_include_directories(anylibcxx_checks PRIVATE tests/include)
 target_link_libraries(anylibcxx_checks PRIVATE AnyLibcxx::Runtime)
 
 if(WIN32)
-    target_sources(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/private_typeinfo.cpp" "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp" src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp)
-    set_source_files_properties(src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
+    target_sources(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/private_typeinfo.cpp" "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp" src/Windows/Math.cpp src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp)
+    set_source_files_properties(src/Windows/Math.cpp src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
 endif()
 
 if(WIN32)
@@ -81,7 +81,7 @@ if(WIN32)
     target_include_directories(anylibcxx_runtime SYSTEM BEFORE INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include/Windows")
     target_compile_definitions(anylibcxx_runtime INTERFACE _CRTIMP= __USE_MINGW_ANSI_STDIO=0 __MSVCRT_VERSION__=0x700 _CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES=0)
     set(windowsImports)
-    foreach(source Memory Stdio Conversion ExceptionTransport Formatting)
+    foreach(source Math Memory Stdio Conversion ExceptionTransport Formatting)
         set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/${source}.cpp")
         file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/${source}.cpp" sourceText)
         string(REGEX MATCHALL "[A-Za-z_][A-Za-z0-9_]*_nid_postfix" sourceImports "${sourceText}")
@@ -120,3 +120,11 @@ add_custom_target(anylibcxx_package
     COMMAND "${CMAKE_COMMAND}" -DHEADERS_ONLY=OFF -P "${CMAKE_CURRENT_BINARY_DIR}/Package.cmake"
     DEPENDS cxx_static anylibcxx_checks
     VERBATIM)
+
+if(WIN32)
+    enable_testing()
+    add_executable(anylibcxx_math_abi tests/src/MathAbi.cpp tests/src/ClobberVolatileRegisters.S src/Windows/Math.cpp)
+    target_compile_features(anylibcxx_math_abi PRIVATE cxx_std_20)
+    target_compile_options(anylibcxx_math_abi PRIVATE -fno-builtin -Wall -Wextra -Wpedantic -Werror)
+    add_test(NAME math_abi COMMAND anylibcxx_math_abi)
+endif()
