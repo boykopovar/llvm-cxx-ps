@@ -4,6 +4,7 @@
 #include <cfenv>
 #include <cerrno>
 #include <cstdint>
+#include <cstddef>
 #include <cstring>
 #include <limits>
 

@@ -109,6 +109,12 @@ jobs:
         run: cmake --build build --target anylibcxx_headers --parallel 4
       - name: Build runtime and compile checks
         run: cmake --build build --target anylibcxx_package --parallel 4
+      - name: Check Windows ABI transitions
+        if: runner.os == 'Windows'
+        run: |
+          set -euo pipefail
+          cmake --build build --target anylibcxx_math_abi anylibcxx_jump_abi anylibcxx_callback_abi --parallel 4
+          ctest --test-dir build --output-on-failure
       - name: Check relocated package
         env:
           ARCHIVE_EXTENSION: ${{ matrix.extension }}
@@ -133,12 +139,19 @@ jobs:
           cmake --build build-consumer --parallel 4
           llvm-ar t relocated/lib/libanycxx.a > archive-members.txt
           test -s archive-members.txt
+      - name: Audit Windows runtime imports
+        if: runner.os == 'Windows'
+        run: |
+          set -euo pipefail
+          python libcxx/platform/anyps5/tests/check_windows_imports.py \
+            --nm llvm-nm --archive relocated/lib/libanycxx.a \
+            --objects build-consumer/CMakeFiles/PackageCheck.dir
       - name: Check ELF runtime imports
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
           llvm-nm --undefined-only relocated/lib/libanycxx.a > runtime-imports.txt
-          if grep -E '__isoc23_|__stack_chk_fail|__fortify_fail' runtime-imports.txt; then
+          if grep -E '__isoc23_|__stack_chk_fail|__fortify_fail| U (stdin|stdout|stderr|__ctype_get_mb_cur_max|clock_gettime(64)?|isatty)$' runtime-imports.txt; then
             echo 'Runtime contains unsupported host libc imports' >&2
             exit 1
           fi

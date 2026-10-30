@@ -5,6 +5,9 @@ extern "C" __uint128_t __umodti3(__uint128_t, __uint128_t);
 #include <cerrno>
 #include <csetjmp>
 #include <cmath>
+#include <complex>
+#include <random>
+#include <valarray>
 #include <cfenv>
 #include <clocale>
 #include <cstdio>
@@ -84,6 +87,21 @@ void RunCApiChecks() {
     require(std::nextafter(std::numeric_limits<long double>::min(), 0.0L) < std::numeric_limits<long double>::min());
     require(std::signbit(std::nextafter(0.0L, -0.0L)));
     require(std::nexttoward(1.0, 1.0L + std::numeric_limits<long double>::epsilon()) == std::nextafter(1.0, 2.0));
+    const auto rotation = std::exp(std::complex<float>{0.0f, 1.5707963267948966f});
+    require(std::abs(rotation.real()) < 0.00001f && std::abs(rotation.imag() - 1.0f) < 0.00001f);
+    const std::valarray<float> roots = std::sqrt(std::valarray<float>{0.0f, 1.0f, 4.0f});
+    require(roots[0] == 0.0f && roots[1] == 1.0f && roots[2] == 2.0f);
+    std::mt19937 generator(123);
+    std::normal_distribution<float> normal;
+    std::gamma_distribution<double> gamma(3.0);
+    std::uniform_real_distribution<long double> uniform(0.0L, 1.0L);
+    for (int i = 0; i < 32; ++i) {
+        require(std::isfinite(normal(generator)));
+        const auto gammaValue = gamma(generator);
+        require(std::isfinite(gammaValue) && gammaValue >= 0);
+        const auto uniformValue = uniform(generator);
+        require(uniformValue >= 0 && uniformValue < 1);
+    }
     std::array<int, 7> values{7, 2, 5, 1, 6, 3, 4};
     std::qsort(values.data(), values.size(), sizeof(int), compare);
     require(std::is_sorted(values.begin(), values.end()));
