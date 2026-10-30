@@ -8,6 +8,7 @@ typedef unsigned long long wctype_t;
 #include_next <corecrt.h>
 #undef mbstate_t
 #define _INC_CORECRT_WSTRING
+#define _INC_CORECRT_WTIME
 #include <AnyLibcxxMbState.h>
 typedef AnyLibcxxMbState mbstate_t;
 #endif
