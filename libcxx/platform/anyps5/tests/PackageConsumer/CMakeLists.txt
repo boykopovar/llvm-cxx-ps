@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 project(AnyLibcxxPackageCheck LANGUAGES CXX)
 find_package(AnyLibcxx CONFIG REQUIRED)
-add_library(PackageCheck OBJECT ../src/ContainerChecks.cpp)
+add_library(PackageCheck OBJECT ../src/ContainerChecks.cpp ../src/CApiChecks.cpp ../src/CApiSurface.cpp)
 set_target_properties(PackageCheck PROPERTIES CXX_EXTENSIONS OFF)
 target_include_directories(PackageCheck PRIVATE ../include)
 target_compile_options(PackageCheck PRIVATE -Wall -Wextra -Wpedantic -Werror)
