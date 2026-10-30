@@ -38,7 +38,7 @@ foreach(header cxxabi.h __cxxabi_config.h)
 endforeach()
 set_target_properties(cxx_static PROPERTIES OUTPUT_NAME anycxx)
 get_target_property(runtimeSources cxx_static SOURCES)
-list(FILTER runtimeSources EXCLUDE REGEX "^exception[.]cpp$")
+list(FILTER runtimeSources EXCLUDE REGEX "^(exception|chrono|print|filesystem/filesystem_clock)[.]cpp$")
 if(WIN32)
     list(FILTER runtimeSources EXCLUDE REGEX "support/win32/")
 endif()
@@ -48,6 +48,7 @@ if(NOT WIN32)
 endif()
 target_sources(cxx_static PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Locale.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Clock.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_exception.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_stdexcept.cpp"
@@ -73,8 +74,8 @@ target_include_directories(anylibcxx_checks PRIVATE tests/include)
 target_link_libraries(anylibcxx_checks PRIVATE AnyLibcxx::Runtime)
 
 if(WIN32)
-    target_sources(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/private_typeinfo.cpp" "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp" src/Windows/Math.cpp src/Windows/Strings.cpp src/Windows/Wide.cpp src/Windows/Search.cpp src/Windows/Numbers.cpp src/Windows/GuestLongDouble.S src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp)
-    set_source_files_properties(src/Windows/Math.cpp src/Windows/Strings.cpp src/Windows/Wide.cpp src/Windows/Search.cpp src/Windows/Numbers.cpp src/Windows/GuestLongDouble.S src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
+    target_sources(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/private_typeinfo.cpp" "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp" src/Windows/Math.cpp src/Windows/Strings.cpp src/Windows/Wide.cpp src/Windows/Search.cpp src/Windows/Numbers.cpp src/Windows/GuestLongDouble.S src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Time.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp)
+    set_source_files_properties(src/Windows/Math.cpp src/Windows/Strings.cpp src/Windows/Wide.cpp src/Windows/Search.cpp src/Windows/Numbers.cpp src/Windows/GuestLongDouble.S src/Windows/Memory.cpp src/Windows/Stdio.cpp src/Windows/Time.cpp src/Windows/Conversion.cpp src/Windows/ExceptionTransport.cpp src/Windows/Formatting.cpp PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
 endif()
 
 if(WIN32)
@@ -88,7 +89,7 @@ if(WIN32)
     set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Locale.cpp")
     file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Locale.cpp" localeSource)
     string(REGEX MATCHALL "[A-Za-z_][A-Za-z0-9_]*_nid_postfix" windowsImports "${localeSource}")
-    foreach(source Math FloatingPoint Adjacent Strings Wide Search Numbers Memory Stdio Conversion ExceptionTransport Formatting)
+    foreach(source Math FloatingPoint Adjacent Strings Wide Search Numbers Memory Stdio Time Conversion ExceptionTransport Formatting)
         set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/${source}.cpp")
         file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/${source}.cpp" sourceText)
         string(REGEX MATCHALL "[A-Za-z_][A-Za-z0-9_]*_nid_postfix" sourceImports "${sourceText}")

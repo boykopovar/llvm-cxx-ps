@@ -1,3 +1,4 @@
+#include "Runtime/Time.hpp"
 #include <stddef.h>
 #include <climits>
 #include <ctime>
@@ -106,19 +107,6 @@ __uint128_t __attribute__((sysv_abi)) __udivti3_nid_postfix(__uint128_t left, __
 __uint128_t __attribute__((sysv_abi)) __umodti3_nid_postfix(__uint128_t left, __uint128_t right);
 __uint128_t __udivti3(__uint128_t left, __uint128_t right) { return __udivti3_nid_postfix(left, right); }
 __uint128_t __umodti3(__uint128_t left, __uint128_t right) { return __umodti3_nid_postfix(left, right); }
-struct GuestTm {
-    int Seconds;
-    int Minutes;
-    int Hours;
-    int MonthDay;
-    int Month;
-    int Year;
-    int WeekDay;
-    int YearDay;
-    int DaylightSaving;
-    long long GmtOffset;
-    const char* Zone;
-};
 size_t __attribute__((sysv_abi)) strftime_nid_postfix(char* target, size_t capacity, const char* format, const GuestTm* time);
 size_t strftime(char* target, size_t capacity, const char* format, const tm* time) {
     if (!time) throw std::invalid_argument("Null time");
