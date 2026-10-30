@@ -34,7 +34,7 @@ int __attribute__((sysv_abi)) fgetwc_nid_postfix(FILE* stream);
 wint_t fgetwc(FILE* stream) { return fgetwc_nid_postfix(stream); }
 int __attribute__((sysv_abi)) fputwc_nid_postfix(wchar_t value, FILE* stream);
 wint_t fputwc(wchar_t value, FILE* stream) { return fputwc_nid_postfix(value, stream); }
-wint_t __attribute__((sysv_abi)) ungetwc_nid_postfix(wint_t value, FILE* stream);
+int __attribute__((sysv_abi)) ungetwc_nid_postfix(unsigned int value, FILE* stream);
 wint_t ungetwc(wint_t value, FILE* stream) { return ungetwc_nid_postfix(value == WEOF ? -1 : value, stream); }
 void __attribute__((sysv_abi)) setbuf_nid_postfix(FILE* stream, char* buffer);
 void setbuf(FILE* stream, char* buffer) { return setbuf_nid_postfix(stream, buffer); }

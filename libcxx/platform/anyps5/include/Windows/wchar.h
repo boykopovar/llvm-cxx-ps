@@ -7,8 +7,10 @@
 #include <limits.h>
 #define WCHAR_MIN 0
 #define WCHAR_MAX 65535
-#define WEOF ((wint_t)65535)
-typedef struct { unsigned long long Value; unsigned short Surrogate; short Pending; unsigned int Reserved; } mbstate_t;
+#undef WEOF
+#define WEOF ((wint_t)0xffffffffu)
+#include <AnyLibcxxMbState.h>
+typedef AnyLibcxxMbState mbstate_t;
 struct tm;
 #ifdef __cplusplus
 extern "C" {
