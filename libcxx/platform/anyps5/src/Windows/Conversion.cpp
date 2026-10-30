@@ -31,8 +31,6 @@ char* __attribute__((sysv_abi)) setlocale_nid_postfix(int category, const char* 
 char* setlocale(int category, const char* name) { return setlocale_nid_postfix(category, name); }
 char* __attribute__((sysv_abi)) strerror_nid_postfix(int error);
 char* strerror(int error) { return strerror_nid_postfix(error); }
-int __attribute__((sysv_abi)) fegetround_nid_postfix();
-int fegetround() { return fegetround_nid_postfix(); }
 int __attribute__((sysv_abi)) isalnum_nid_postfix(int value);
 int isalnum(int value) { return isalnum_nid_postfix(value); }
 int __attribute__((sysv_abi)) isalpha_nid_postfix(int value);
