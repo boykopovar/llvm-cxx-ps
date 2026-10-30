@@ -1,6 +1,7 @@
 #ifndef ANYLIBCXX_WINDOWS_STDLIB_H
 #define ANYLIBCXX_WINDOWS_STDLIB_H
 #include_next <stdlib.h>
+#include <AnyLibcxxMbCurMax.h>
 #ifdef __cplusplus
 extern "C" {
 #endif

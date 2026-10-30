@@ -48,6 +48,7 @@ if(NOT WIN32)
 endif()
 target_sources(cxx_static PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Locale.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Uchar.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Clock.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_exception.cpp"
@@ -89,6 +90,10 @@ if(WIN32)
     set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Locale.cpp")
     file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Locale.cpp" localeSource)
     string(REGEX MATCHALL "[A-Za-z_][A-Za-z0-9_]*_nid_postfix" windowsImports "${localeSource}")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Uchar.cpp")
+    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Uchar.cpp" ucharSource)
+    string(REGEX MATCHALL "[A-Za-z_][A-Za-z0-9_]*_nid_postfix" ucharImports "${ucharSource}")
+    list(APPEND windowsImports ${ucharImports})
     foreach(source Math FloatingPoint Adjacent Strings Wide Search Numbers Memory Stdio Time Conversion ExceptionTransport Formatting)
         set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/${source}.cpp")
         file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/${source}.cpp" sourceText)
@@ -105,13 +110,15 @@ if(WIN32)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/WindowsImports.cmake" "set(ANYLIBCXX_WINDOWS_IMPORTS \"${windowsImports}\")\n")
 endif()
 
-foreach(header AnyLibcxxMbState.h locale.h errno.h)
+foreach(header AnyLibcxxMbState.h AnyLibcxxMbCurMax.h locale.h errno.h uchar.h)
     configure_file("include/Common/${header}" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/llvm-project/runtimes/include/anyps5/${header}" COPYONLY)
 endforeach()
 install(DIRECTORY include/Common/ DESTINATION include/anyps5 COMPONENT cxx-headers)
 target_include_directories(anylibcxx_runtime SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include/Common")
 if(NOT WIN32)
-    configure_file(include/Elf/bits/types/__mbstate_t.h "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/llvm-project/runtimes/include/anyps5/bits/types/__mbstate_t.h" COPYONLY)
+    foreach(header bits/types/__mbstate_t.h stdlib.h)
+        configure_file("include/Elf/${header}" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/llvm-project/runtimes/include/anyps5/${header}" COPYONLY)
+    endforeach()
     install(DIRECTORY include/Elf/ DESTINATION include/anyps5 COMPONENT cxx-headers)
     target_include_directories(anylibcxx_runtime SYSTEM BEFORE INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include/Elf")
 endif()
