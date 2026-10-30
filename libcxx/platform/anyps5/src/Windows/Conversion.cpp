@@ -1,4 +1,3 @@
-#include "Runtime/Time.hpp"
 #include <stddef.h>
 #include <climits>
 #include <ctime>
@@ -107,10 +106,6 @@ __uint128_t __attribute__((sysv_abi)) __udivti3_nid_postfix(__uint128_t left, __
 __uint128_t __attribute__((sysv_abi)) __umodti3_nid_postfix(__uint128_t left, __uint128_t right);
 __uint128_t __udivti3(__uint128_t left, __uint128_t right) { return __udivti3_nid_postfix(left, right); }
 __uint128_t __umodti3(__uint128_t left, __uint128_t right) { return __umodti3_nid_postfix(left, right); }
-size_t __attribute__((sysv_abi)) strftime_nid_postfix(char* target, size_t capacity, const char* format, const GuestTm* time);
-size_t strftime(char* target, size_t capacity, const char* format, const tm* time) {
-    if (!time) throw std::invalid_argument("Null time");
-    const GuestTm converted{time->tm_sec, time->tm_min, time->tm_hour, time->tm_mday, time->tm_mon, time->tm_year, time->tm_wday, time->tm_yday, time->tm_isdst, 0, nullptr};
-    return strftime_nid_postfix(target, capacity, format, &converted);
-}
+size_t __attribute__((sysv_abi)) strftime_nid_postfix(char* target, size_t capacity, const char* format, const tm* time);
+size_t strftime(char* target, size_t capacity, const char* format, const tm* time) { return strftime_nid_postfix(target, capacity, format, time); }
 }

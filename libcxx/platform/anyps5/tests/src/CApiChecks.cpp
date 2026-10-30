@@ -154,6 +154,7 @@ void RunCApiChecks() {
     require(std::feclearexcept(FE_ALL_EXCEPT) == 0 && std::fesetexceptflag(&flags, FE_ALL_EXCEPT) == 0);
     require((std::fetestexcept(FE_INVALID) & FE_INVALID) != 0);
     require(std::fesetenv(&saved) == 0);
+    static_assert(sizeof(std::tm) == 56 && sizeof(std::time_t) == 8);
     std::time_t epoch = 0;
     const auto* utc = std::gmtime(&epoch);
     require(utc && utc->tm_year == 70 && utc->tm_mon == 0 && utc->tm_mday == 1);

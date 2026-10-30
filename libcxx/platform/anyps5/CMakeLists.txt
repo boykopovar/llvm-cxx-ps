@@ -99,7 +99,7 @@ if(WIN32)
 endif()
 
 if(WIN32)
-    foreach(header stdio.h stdlib.h wchar.h wctype.h corecrt.h setjmp.h)
+    foreach(header stdio.h stdlib.h wchar.h wctype.h corecrt.h setjmp.h time.h)
         configure_file("include/Windows/${header}" "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/llvm-project/runtimes/include/anyps5/${header}" COPYONLY)
     endforeach()
     install(DIRECTORY include/Windows/ DESTINATION include/anyps5 COMPONENT cxx-headers)
