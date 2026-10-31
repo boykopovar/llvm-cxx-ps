@@ -7,8 +7,8 @@ extern "C" {
 int* _errno(void);
 #define errno (*_errno())
 #else
-int* _Geterrno(void);
-#define errno (*_Geterrno())
+int* __error(void);
+#define errno (*__error())
 #endif
 #ifdef __cplusplus
 }

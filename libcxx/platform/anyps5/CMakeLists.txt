@@ -53,9 +53,11 @@ target_sources(cxx_static PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_exception.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_stdexcept.cpp"
-    "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_typeinfo.cpp")
+    "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_typeinfo.cpp"
+    "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/private_typeinfo.cpp"
+    "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp")
 target_compile_options(cxx_static PRIVATE -fshort-wchar)
-target_compile_definitions(cxx_static PRIVATE __NO_CTYPE __errno_location=_Geterrno)
+target_compile_definitions(cxx_static PRIVATE __NO_CTYPE __errno_location=__error)
 target_include_directories(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libc")
 
 target_include_directories(cxx_static PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -64,7 +66,7 @@ add_library(anylibcxx_runtime INTERFACE)
 add_library(AnyLibcxx::Runtime ALIAS anylibcxx_runtime)
 target_compile_features(anylibcxx_runtime INTERFACE cxx_std_20)
 target_compile_options(anylibcxx_runtime INTERFACE -nostdinc++ -fshort-wchar)
-target_compile_definitions(anylibcxx_runtime INTERFACE __NO_CTYPE __errno_location=_Geterrno)
+target_compile_definitions(anylibcxx_runtime INTERFACE __NO_CTYPE __errno_location=__error)
 target_link_options(anylibcxx_runtime INTERFACE -nostdlib++)
 target_link_libraries(anylibcxx_runtime INTERFACE "$<LINK_ONLY:cxx_static>" cxx-headers)
 add_library(anylibcxx_checks OBJECT tests/src/ContainerChecks.cpp)
@@ -94,7 +96,7 @@ if(WIN32)
         src/Windows/Formatting.cpp
         src/Windows/Unavailable.cpp
     )
-    target_sources(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/private_typeinfo.cpp" "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp" ${windowsAdapterSources})
+    target_sources(cxx_static PRIVATE ${windowsAdapterSources})
     set_source_files_properties(${windowsAdapterSources} PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
 endif()
 
