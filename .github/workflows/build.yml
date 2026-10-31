@@ -139,6 +139,12 @@ jobs:
           cmake --build build-consumer --parallel 4
           llvm-ar t relocated/lib/libanycxx.a > archive-members.txt
           test -s archive-members.txt
+      - name: Check runtime RTTI
+        run: |
+          set -euo pipefail
+          python libcxx/platform/anyps5/tests/check_rtti.py \
+            --nm llvm-nm --archive relocated/lib/libanycxx.a \
+            --objects build-consumer/CMakeFiles/PackageCheck.dir
       - name: Audit Windows runtime imports
         if: runner.os == 'Windows'
         run: |
@@ -151,7 +157,7 @@ jobs:
         run: |
           set -euo pipefail
           llvm-nm --undefined-only relocated/lib/libanycxx.a > runtime-imports.txt
-          if grep -E '__isoc23_|__stack_chk_fail|__fortify_fail| U (stdin|stdout|stderr|__ctype_get_mb_cur_max|clock_gettime(64)?|isatty)$' runtime-imports.txt; then
+          if grep -E '__isoc23_|__stack_chk_fail|__fortify_fail| U (_Geterrno|stdin|stdout|stderr|__ctype_get_mb_cur_max|clock_gettime(64)?|isatty)$' runtime-imports.txt; then
             echo 'Runtime contains unsupported host libc imports' >&2
             exit 1
           fi

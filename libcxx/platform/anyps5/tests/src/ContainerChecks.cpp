@@ -1,6 +1,7 @@
 #include "ContainerChecks.hpp"
 
 #include <algorithm>
+#include <any>
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
@@ -62,6 +63,13 @@ struct UnwindObserver {
 
 void RunContainerChecks(unsigned int seed) {
     require(std::uncaught_exceptions() == 0, "Unexpected initial exception count");
+    {
+        std::any value = static_cast<int>(seed % 1000);
+        require(value.type() == typeid(int) && std::any_cast<int>(value) == static_cast<int>(seed % 1000), "Integer RTTI failed");
+        value = 1.25;
+        require(value.type() == typeid(double) && std::any_cast<double>(value) == 1.25, "Floating RTTI failed");
+        expectException<std::bad_any_cast>([&] { static_cast<void>(std::any_cast<int>(value)); });
+    }
     {
         std::vector<unsigned int> values;
         for (unsigned int index = 0; index < 4096; ++index) values.push_back(seed ^ index);
