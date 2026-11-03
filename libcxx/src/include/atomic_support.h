@@ -21,7 +21,7 @@
 #  define _LIBCPP_HAS_ATOMIC_BUILTINS
 #endif
 
-#if !defined(_LIBCPP_HAS_ATOMIC_BUILTINS) && _LIBCPP_HAS_THREADS
+#if !defined(_LIBCPP_HAS_ATOMIC_BUILTINS) && (_LIBCPP_HAS_THREADS || defined(_LIBCPP_ABI_PS5))
 #  if defined(_LIBCPP_WARNING)
 _LIBCPP_WARNING("Building libc++ without __atomic builtins is unsupported")
 #  else
@@ -33,7 +33,7 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 
 namespace {
 
-#if defined(_LIBCPP_HAS_ATOMIC_BUILTINS) && _LIBCPP_HAS_THREADS
+#if defined(_LIBCPP_HAS_ATOMIC_BUILTINS) && (_LIBCPP_HAS_THREADS || defined(_LIBCPP_ABI_PS5))
 
 enum __libcpp_atomic_order {
   _AO_Relaxed = __ATOMIC_RELAXED,
