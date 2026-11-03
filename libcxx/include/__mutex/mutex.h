@@ -22,7 +22,11 @@
 _LIBCPP_BEGIN_NAMESPACE_STD
 
 class _LIBCPP_EXPORTED_FROM_ABI _LIBCPP_THREAD_SAFETY_ANNOTATION(capability("mutex")) mutex {
+#  if defined(_LIBCPP_ABI_PS5)
+  void* __m_ = nullptr;
+#  else
   __libcpp_mutex_t __m_ = _LIBCPP_MUTEX_INITIALIZER;
+#  endif
 
 public:
   _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR mutex() = default;
@@ -30,7 +34,7 @@ public:
   mutex(const mutex&)            = delete;
   mutex& operator=(const mutex&) = delete;
 
-#  if _LIBCPP_HAS_TRIVIAL_MUTEX_DESTRUCTION
+#  if _LIBCPP_HAS_TRIVIAL_MUTEX_DESTRUCTION && !defined(_LIBCPP_ABI_PS5)
   _LIBCPP_HIDE_FROM_ABI ~mutex() = default;
 #  else
   ~mutex() _NOEXCEPT;
@@ -40,7 +44,11 @@ public:
   bool try_lock() _NOEXCEPT _LIBCPP_THREAD_SAFETY_ANNOTATION(try_acquire_capability(true));
   void unlock() _NOEXCEPT _LIBCPP_THREAD_SAFETY_ANNOTATION(release_capability());
 
+#  if defined(_LIBCPP_ABI_PS5)
+  typedef void** native_handle_type;
+#  else
   typedef __libcpp_mutex_t* native_handle_type;
+#  endif
   _LIBCPP_HIDE_FROM_ABI native_handle_type native_handle() { return &__m_; }
 };
 

@@ -25,6 +25,8 @@ def main():
         defined.update(symbols(arguments.nm, path, True))
         required.update(symbols(arguments.nm, path, False))
     native = {
+        "scePthreadMutexInit", "scePthreadMutexDestroy", "scePthreadMutexLock",
+        "scePthreadMutexTrylock", "scePthreadMutexUnlock",
         "_Unwind_Resume", "_ZSt9terminatev", "__cxa_allocate_exception",
         "__cxa_begin_catch", "__cxa_end_catch", "__cxa_free_exception",
         "__cxa_get_globals", "__cxa_rethrow", "__cxa_throw", "__gxx_personality_v0",
