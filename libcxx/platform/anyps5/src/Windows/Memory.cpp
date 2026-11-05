@@ -1,16 +1,6 @@
 #include <stddef.h>
 
 extern "C" {
-void* __attribute__((sysv_abi)) malloc_nid_postfix(size_t size);
-void* malloc(size_t size) { return malloc_nid_postfix(size); }
-void __attribute__((sysv_abi)) free_nid_postfix(void* pointer);
-void free(void* pointer) { return free_nid_postfix(pointer); }
-void* __attribute__((sysv_abi)) realloc_nid_postfix(void* pointer, size_t size);
-void* realloc(void* pointer, size_t size) { return realloc_nid_postfix(pointer, size); }
-void* __attribute__((sysv_abi)) aligned_alloc_nid_postfix(size_t alignment, size_t size);
-void* aligned_alloc(size_t alignment, size_t size) { return aligned_alloc_nid_postfix(alignment, size); }
-void* __attribute__((sysv_abi)) calloc_nid_postfix(size_t count, size_t size);
-void* calloc(size_t count, size_t size) { return calloc_nid_postfix(count, size); }
 void* __attribute__((sysv_abi)) memcpy_nid_postfix(void* target, const void* source, size_t size);
 void* memcpy(void* target, const void* source, size_t size) { return memcpy_nid_postfix(target, source, size); }
 void* __attribute__((sysv_abi)) memmove_nid_postfix(void* target, const void* source, size_t size);

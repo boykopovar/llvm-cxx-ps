@@ -46,7 +46,7 @@ set_property(TARGET cxx_static PROPERTY SOURCES "${runtimeSources}")
 if(NOT WIN32)
     target_sources(cxx_static PRIVATE src/Scanning.cpp src/Elf/Math.cpp)
 endif()
-set(commonAdapterSources src/Locale.cpp src/Uchar.cpp src/Clock.cpp src/Assert.cpp src/FloatingPoint.cpp src/FloatingPointEnvironment.S src/Adjacent.cpp src/Mutex.cpp)
+set(commonAdapterSources src/Allocation.cpp src/Allocation/Api.cpp src/Allocation/Heap.cpp src/Locale.cpp src/Uchar.cpp src/Clock.cpp src/Assert.cpp src/FloatingPoint.cpp src/FloatingPointEnvironment.S src/Adjacent.cpp src/Mutex.cpp)
 set_source_files_properties(${commonAdapterSources} PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
 target_sources(cxx_static PRIVATE
     ${commonAdapterSources}
