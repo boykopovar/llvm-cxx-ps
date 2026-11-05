@@ -73,6 +73,11 @@ jobs:
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-ninja
             mingw-w64-x86_64-python
+      - name: Check allocation behavior
+        run: |
+          cmake -S libcxx/platform/anyps5/tests/Allocation -B build-allocation -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-allocation --parallel 4
+          ctest --test-dir build-allocation --output-on-failure
       - name: Select package version
         env:
           REF_TYPE: ${{ github.ref_type }}
