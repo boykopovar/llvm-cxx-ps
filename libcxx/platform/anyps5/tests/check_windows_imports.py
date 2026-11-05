@@ -25,6 +25,8 @@ def main():
         defined.update(symbols(arguments.nm, path, True))
         required.update(symbols(arguments.nm, path, False))
     native = {
+        "sceKernelGetDirectMemorySize", "sceKernelAllocateDirectMemory", "sceKernelMapDirectMemory",
+        "sceKernelMunmap", "sceKernelReleaseDirectMemory",
         "scePthreadMutexInit", "scePthreadMutexDestroy", "scePthreadMutexLock",
         "scePthreadMutexTrylock", "scePthreadMutexUnlock",
         "_Unwind_Resume", "_ZSt9terminatev", "__cxa_allocate_exception",
