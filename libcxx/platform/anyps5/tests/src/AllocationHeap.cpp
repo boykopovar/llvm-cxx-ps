@@ -18,6 +18,7 @@ alignas(64) std::byte backing[StorageSize + PageSize];
 auto* storage = reinterpret_cast<std::byte*>((reinterpret_cast<std::uintptr_t>(backing) + PageSize - 1) & ~(PageSize - 1));
 std::array<bool, StorageSize / PageSize> pages{};
 std::size_t livePages = 0;
+bool failNextMapping = false;
 struct Record { void* Pointer; std::size_t Size; unsigned char Value; };
 void check(const Record& record) {
     const auto* bytes = static_cast<const unsigned char*>(record.Pointer);
@@ -50,6 +51,7 @@ int __attribute__((sysv_abi)) sceKernelAllocateDirectMemory(std::int64_t, std::i
 }
 int __attribute__((sysv_abi)) sceKernelMapDirectMemory(void** address, std::size_t size, int protection, int flags, std::int64_t physical, std::size_t alignment) {
     require(protection == 3 && flags == 0 && alignment == PageSize);
+    if (failNextMapping) { failNextMapping = false; return -1; }
     require(physical >= 0 && static_cast<std::size_t>(physical) + size <= StorageSize);
     *address = storage + physical;
     return 0;
@@ -65,6 +67,9 @@ int __attribute__((sysv_abi)) sceKernelReleaseDirectMemory(std::int64_t physical
 }
 int main() {
     using namespace AnyLibcxx::Allocation;
+    failNextMapping = true;
+    require(!Allocate(128, 16));
+    require(livePages == 0);
     auto* bytes = static_cast<unsigned char*>(Calloc(17, 3));
     require(bytes);
     for (unsigned i = 0; i < 51; ++i) { require(bytes[i] == 0); bytes[i] = static_cast<unsigned char>(i); }
