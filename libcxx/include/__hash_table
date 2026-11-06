@@ -1530,9 +1530,8 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__emplace_unique_key_args(_Key const& 
   size_type __bc  = bucket_count();
   bool __inserted = false;
   __next_pointer __nd;
-  size_t __chash;
   if (__bc != 0) {
-    __chash = std::__constrain_hash(__hash, __bc);
+    size_t __chash = std::__constrain_hash(__hash, __bc);
     __nd    = __bucket_list_[__chash];
     if (__nd != nullptr) {
       for (__nd = __nd->__next_;
@@ -1549,8 +1548,8 @@ __hash_table<_Tp, _Hash, _Equal, _Alloc>::__emplace_unique_key_args(_Key const& 
       __rehash_unique(std::max<size_type>(
           2 * __bc + !std::__is_hash_power2(__bc), size_type(__math::ceil(float(size() + 1) / max_load_factor()))));
       __bc    = bucket_count();
-      __chash = std::__constrain_hash(__hash, __bc);
     }
+    size_t __chash = std::__constrain_hash(__hash, __bc);
     // insert_after __bucket_list_[__chash], or __first_node if bucket is null
     __next_pointer __pn = __bucket_list_[__chash];
     if (__pn == nullptr) {
