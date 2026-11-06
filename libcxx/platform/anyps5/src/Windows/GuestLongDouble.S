@@ -2,6 +2,7 @@
 .macro ANYLIBCXX_LONG_DOUBLE name, target, size, registers
 .globl \name
 \name:
+#if defined(__clang__)
 .cfi_startproc
     push %rbx
 .cfi_def_cfa_offset 16
@@ -35,6 +36,9 @@
 .cfi_restore %rbx
     ret
 .cfi_endproc
+#else
+    jmp \target
+#endif
 .endm
 
 ANYLIBCXX_LONG_DOUBLE AnyLibcxxGuest_acosl, acosl_nid_postfix, 16, 0
