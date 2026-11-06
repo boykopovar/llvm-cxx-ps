@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cxxabi.h>
 #include <iomanip>
+#include <format>
 #include <sstream>
 #include <any>
 #include <atomic>
@@ -68,6 +69,8 @@ struct UnwindObserver {
 void RunContainerChecks(unsigned int seed) {
     require(std::uncaught_exceptions() == 0, "Unexpected initial exception count");
     expectException<std::bad_array_new_length>([] { __cxxabiv1::__cxa_throw_bad_array_new_length(); });
+    require(std::format("{}:{:x}", std::numeric_limits<unsigned long long>::max(), std::numeric_limits<unsigned long long>::max()) == "18446744073709551615:ffffffffffffffff", "Unsigned integer formatting failed");
+    require(std::format("{}", std::numeric_limits<long long>::min()) == "-9223372036854775808", "Signed integer formatting failed");
     for (const std::size_t size : {0, 1, 22, 23, 24, 127, 128, 4096}) {
         std::string value(size, 'a');
         value.insert(value.begin(), '-');
