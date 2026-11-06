@@ -84,7 +84,8 @@ void RunCApiChecks() {
     require(parsedLong == -123 && parsedReal == 1.25L && parsedSize == 42);
 #ifdef _WIN32
     bool rejected = false;
-    try { std::fwide(nullptr, 0); } catch (const std::runtime_error&) { rejected = true; }
+    auto* volatile wideOrientation = &std::fwide;
+    try { wideOrientation(nullptr, 0); } catch (const std::runtime_error&) { rejected = true; }
     require(rejected);
 #endif
     math<float>();

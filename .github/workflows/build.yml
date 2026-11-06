@@ -187,6 +187,25 @@ jobs:
             echo 'Runtime contains unsupported host libc imports' >&2
             exit 1
           fi
+      - name: Check Windows runtime execution
+        if: runner.os == 'Windows'
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 https://github.com/boykopovar/AnyDevKit/releases/download/v0.1.4/AnyDevKit-0.1.4-windows-x86_64.zip -o adk-sdk.zip
+          echo '9a483ccdf745cd6d957b7d75257d41c36052205f9484f6e356e25db3c6f3cdd4  adk-sdk.zip' | sha256sum --check
+          cmake -E make_directory adk-sdk
+          cmake -E chdir adk-sdk cmake -E tar xf ../adk-sdk.zip
+          python adk-sdk/tools/setup.py adk-deps --target windows
+          cmake -S libcxx/platform/anyps5/tests/RuntimeConsumer -B build-runtime -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="$PWD/libcxx/platform/anyps5/cmake/toolchains/Windows.cmake" \
+            -DANYLIBCXX_COMPILER="${{ matrix.compiler }}" \
+            -DANYLIBCXX_SYSROOT="$(cygpath -m /mingw64)" \
+            -DAnyDevKit_DIR="$PWD/adk-sdk/lib/cmake/AnyDevKit" \
+            -DADK_DEPENDENCY_ROOT="$PWD/adk-deps/windows" \
+            -DAnyLibcxx_DIR="$PWD/relocated/lib/cmake/AnyLibcxx"
+          cmake --build build-runtime --parallel 4
+          ctest --test-dir build-runtime --output-on-failure
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: llvm-cxx-ps-${{ matrix.package }}-x86_64
