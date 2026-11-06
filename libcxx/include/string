@@ -1303,7 +1303,7 @@ public:
   _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX20 size_type length() const _NOEXCEPT { return size(); }
 
   _LIBCPP_HIDE_FROM_ABI _LIBCPP_CONSTEXPR_SINCE_CXX20 size_type max_size() const _NOEXCEPT {
-    size_type __m = __alloc_traits::max_size(__alloc_);
+    size_type __m = std::min<size_type>(__alloc_traits::max_size(__alloc_), std::numeric_limits<difference_type>::max());
     if (__m <= std::numeric_limits<size_type>::max() / 2) {
       return __m - __alignment;
     } else {

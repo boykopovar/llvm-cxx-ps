@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <exception>
 #include <memory>
+#include <limits>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -63,6 +64,8 @@ struct UnwindObserver {
 
 void RunContainerChecks(unsigned int seed) {
     require(std::uncaught_exceptions() == 0, "Unexpected initial exception count");
+    require(std::string{}.max_size() <= static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()), "String maximum exceeds pointer difference range");
+    expectException<std::length_error>([] { std::string value; value.resize(value.max_size() + 1); });
     {
         std::any value = static_cast<int>(seed % 1000);
         require(value.type() == typeid(int) && std::any_cast<int>(value) == static_cast<int>(seed % 1000), "Integer RTTI failed");
