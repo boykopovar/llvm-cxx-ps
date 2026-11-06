@@ -1,6 +1,9 @@
 #include "ContainerChecks.hpp"
 
 #include <algorithm>
+#include <cxxabi.h>
+#include <iomanip>
+#include <sstream>
 #include <any>
 #include <atomic>
 #include <condition_variable>
@@ -64,7 +67,26 @@ struct UnwindObserver {
 
 void RunContainerChecks(unsigned int seed) {
     require(std::uncaught_exceptions() == 0, "Unexpected initial exception count");
+    expectException<std::bad_array_new_length>([] { __cxxabiv1::__cxa_throw_bad_array_new_length(); });
+    for (const std::size_t size : {0, 1, 22, 23, 24, 127, 128, 4096}) {
+        std::string value(size, 'a');
+        value.insert(value.begin(), '-');
+        require(value == std::string("-") + std::string(size, 'a'), "String insertion after growth failed");
+        std::stringstream stream;
+        stream << std::quoted(value + " \"quoted\" \\ value");
+        std::string restored;
+        stream >> std::quoted(restored);
+        require(stream.good() && restored == value + " \"quoted\" \\ value", "Quoted string roundtrip failed");
+        std::wstringstream wide;
+        wide << std::wstring(size, L'a');
+        std::wstring wideValue;
+        wide >> wideValue;
+        require(wideValue == std::wstring(size, L'a'), "Wide string growth failed");
+    }
     require(std::string{}.max_size() <= static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()), "String maximum exceeds pointer difference range");
+    require(std::wstring{}.max_size() <= static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()) / sizeof(wchar_t), "Wide string maximum exceeds object size range");
+    require(std::u16string{}.max_size() <= static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()) / sizeof(char16_t), "UTF-16 string maximum exceeds object size range");
+    require(std::u32string{}.max_size() <= static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()) / sizeof(char32_t), "UTF-32 string maximum exceeds object size range");
     expectException<std::length_error>([] { std::string value; value.resize(value.max_size() + 1); });
     {
         std::any value = static_cast<int>(seed % 1000);
