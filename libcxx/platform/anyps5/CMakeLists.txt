@@ -46,6 +46,12 @@ set_property(TARGET cxx_static PROPERTY SOURCES "${runtimeSources}")
 if(NOT WIN32)
     target_sources(cxx_static PRIVATE src/Scanning.cpp src/Elf/Math.cpp)
 endif()
+add_library(anylibcxx_builtins OBJECT
+    "${ANYLIBCXX_LLVM_ROOT}/compiler-rt/lib/builtins/udivmodti4.c")
+set_target_properties(anylibcxx_builtins PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)
+target_compile_options(anylibcxx_builtins PRIVATE -fno-builtin -fno-stack-protector -fvisibility=hidden -ffunction-sections -fdata-sections)
+target_sources(cxx_static PRIVATE $<TARGET_OBJECTS:anylibcxx_builtins>)
+install(FILES "${ANYLIBCXX_LLVM_ROOT}/compiler-rt/LICENSE.TXT" DESTINATION share/licenses RENAME compiler-rt-LICENSE.TXT COMPONENT anylibcxx)
 set(commonAdapterSources src/Allocation.cpp src/Allocation/Api.cpp src/Allocation/Heap.cpp src/Locale.cpp src/Uchar.cpp src/Clock.cpp src/Assert.cpp src/FloatingPoint.cpp src/FloatingPointEnvironment.S src/Adjacent.cpp src/Mutex.cpp)
 set_source_files_properties(${commonAdapterSources} PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
 target_sources(cxx_static PRIVATE
