@@ -433,7 +433,7 @@ template <class _CharT, class _Traits, class _String>
 _LIBCPP_HIDE_FROM_ABI basic_istream<_CharT, _Traits>&
 __quoted_input(basic_istream<_CharT, _Traits>& __is, _String& __string, _CharT __delim, _CharT __escape) {
   __string.clear();
-  _CharT __c;
+  _CharT __c{};
   __is >> __c;
   if (__is.fail())
     return __is;
