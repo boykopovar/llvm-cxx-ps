@@ -58,6 +58,18 @@ target_sources(cxx_static PRIVATE
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp")
 target_compile_options(cxx_static PRIVATE -fshort-wchar)
 target_compile_definitions(cxx_static PRIVATE __NO_CTYPE __errno_location=__error)
+if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_sources(cxx_static PRIVATE
+        "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/cxa_aux_runtime.cpp"
+        "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/cxa_default_handlers.cpp"
+        "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/cxa_demangle.cpp"
+        "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/cxa_exception_storage.cpp"
+        "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/cxa_handlers.cpp"
+        "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/cxa_exception.cpp"
+        "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/cxa_personality.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/ExceptionAllocation.cpp")
+    target_include_directories(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/include")
+endif()
 target_include_directories(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libc")
 
 target_include_directories(cxx_static PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -69,6 +81,10 @@ target_compile_options(anylibcxx_runtime INTERFACE -nostdinc++ -fshort-wchar)
 target_compile_definitions(anylibcxx_runtime INTERFACE __NO_CTYPE __errno_location=__error)
 target_link_options(anylibcxx_runtime INTERFACE "$<$<CXX_COMPILER_ID:Clang>:-nostdlib++>")
 target_link_libraries(anylibcxx_runtime INTERFACE "$<LINK_ONLY:cxx_static>" cxx-headers)
+if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_link_options(anylibcxx_runtime INTERFACE -nodefaultlibs)
+    target_link_libraries(anylibcxx_runtime INTERFACE gcc_eh gcc kernel32)
+endif()
 add_library(anylibcxx_checks OBJECT tests/src/ContainerChecks.cpp tests/src/MutexChecks.cpp)
 set_target_properties(anylibcxx_checks PROPERTIES CXX_EXTENSIONS OFF)
 target_compile_features(anylibcxx_checks PRIVATE cxx_std_20)
@@ -98,6 +114,8 @@ if(WIN32)
     )
     target_sources(cxx_static PRIVATE ${windowsAdapterSources})
     set_source_files_properties(${windowsAdapterSources} PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
+    set_property(SOURCE src/Windows/QuickExit.cpp APPEND PROPERTY COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:GNU>:-fno-inline>")
+    set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/QuickExit.cpp" TARGET_DIRECTORY cxx_static PROPERTIES COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:GNU>:-fno-inline>")
 endif()
 
 if(WIN32)
@@ -152,6 +170,9 @@ if(NOT ANYLIBCXX_PACKAGE_VERSION MATCHES "^[A-Za-z0-9][A-Za-z0-9._-]*$")
     message(FATAL_ERROR "Invalid package version")
 endif()
 set(ANYLIBCXX_PACKAGE_PLATFORM "${ANYLIBCXX_TARGET}")
+if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(ANYLIBCXX_PACKAGE_PLATFORM windows-gcc)
+endif()
 configure_file(cmake/Package.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/Package.cmake" @ONLY)
 add_custom_target(anylibcxx_headers
     COMMAND "${CMAKE_COMMAND}" -DHEADERS_ONLY=ON -P "${CMAKE_CURRENT_BINARY_DIR}/Package.cmake"

@@ -24,7 +24,7 @@ extern "C" {
 } // extern "C"
 } // namespace __cxxabiv1
 
-#elif __has_feature(cxx_thread_local)
+#elif __has_feature(cxx_thread_local) || defined(_LIBCPP_COMPILER_GCC)
 
 namespace __cxxabiv1 {
 namespace {
