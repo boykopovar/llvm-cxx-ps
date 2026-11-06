@@ -1,5 +1,4 @@
 #include <limits.h>
-#include <stdexcept>
 
 extern "C" {
 int __attribute__((sysv_abi)) feraiseexcept_nid_postfix(int exceptions);
@@ -335,19 +334,4 @@ float __attribute__((sysv_abi)) nextafterf_nid_postfix(float value, float direct
 float nextafterf(float value, float direction) { return nextafterf_nid_postfix(value, direction); }
 double tgamma(double value) { return static_cast<double>(AnyLibcxxGuest_tgammal(value)); }
 float lgammaf(float value) { return static_cast<float>(lgamma_nid_postfix(value)); }
-void sincos(double value, double* sine, double* cosine) {
-    if (sine == nullptr || cosine == nullptr) throw std::invalid_argument("Null sincos output");
-    *sine = sin_nid_postfix(value);
-    *cosine = cos_nid_postfix(value);
-}
-void sincosf(float value, float* sine, float* cosine) {
-    if (sine == nullptr || cosine == nullptr) throw std::invalid_argument("Null sincosf output");
-    *sine = sinf_nid_postfix(value);
-    *cosine = cosf_nid_postfix(value);
-}
-void sincosl(long double value, long double* sine, long double* cosine) {
-    if (sine == nullptr || cosine == nullptr) throw std::invalid_argument("Null sincosl output");
-    *sine = AnyLibcxxGuest_sinl(value);
-    *cosine = AnyLibcxxGuest_cosl(value);
-}
 }

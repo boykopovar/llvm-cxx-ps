@@ -21,7 +21,7 @@ int uncaught_exceptions() noexcept {
 
 }
 
-#if defined(_WIN32) && defined(__clang__)
+#ifdef _WIN32
 #include <atomic>
 #include <new>
 namespace {
