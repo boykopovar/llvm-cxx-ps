@@ -34,7 +34,7 @@
 #  define _CTYPE_DISABLE_MACROS
 #endif
 
-#if __has_include("<langinfo.h>")
+#if __has_include(<langinfo.h>)
 #  include <langinfo.h>
 #endif
 
