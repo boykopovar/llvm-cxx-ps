@@ -51,6 +51,7 @@ set_source_files_properties(${commonAdapterSources} PROPERTIES COMPILE_OPTIONS "
 target_sources(cxx_static PRIVATE
     ${commonAdapterSources}
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp"
+    "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/cxa_aux_runtime.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_exception.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_stdexcept.cpp"
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/stdlib_typeinfo.cpp"
