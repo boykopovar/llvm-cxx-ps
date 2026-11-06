@@ -21,4 +21,12 @@ struct tm {
     const char* tm_zone;
 };
 #include_next <time.h>
+#define TIME_UTC 1
+#ifdef __cplusplus
+extern "C" {
+#endif
+int timespec_get(struct timespec* target, int base);
+#ifdef __cplusplus
+}
+#endif
 #endif

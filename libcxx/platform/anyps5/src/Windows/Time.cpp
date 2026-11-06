@@ -6,6 +6,19 @@
 static_assert(sizeof(tm) == 56);
 
 extern "C" {
+struct AnyLibcxxTimeval {
+    long long Seconds;
+    long long Microseconds;
+};
+int __attribute__((sysv_abi)) gettimeofday_nid_postfix(AnyLibcxxTimeval* target, void* timezone);
+int timespec_get(timespec* target, int base) {
+    if (target == nullptr || base != TIME_UTC) throw std::invalid_argument("Invalid timespec_get arguments");
+    AnyLibcxxTimeval value{};
+    if (gettimeofday_nid_postfix(&value, nullptr) != 0) throw std::runtime_error("gettimeofday failed");
+    target->tv_sec = value.Seconds;
+    target->tv_nsec = static_cast<long>(value.Microseconds * 1000);
+    return base;
+}
 long long __attribute__((sysv_abi)) time_nid_postfix(long long* value);
 long long __attribute__((sysv_abi)) clock_nid_postfix();
 tm* __attribute__((sysv_abi)) gmtime_nid_postfix(const long long* value);

@@ -410,6 +410,7 @@ auto volatile AnyLibcxxReference_difftime = &std::difftime;
 auto volatile AnyLibcxxReference_gmtime = &std::gmtime;
 auto volatile AnyLibcxxReference_localtime = &std::localtime;
 auto volatile AnyLibcxxReference_mktime = &std::mktime;
+auto volatile AnyLibcxxReference_timespec_get = &std::timespec_get;
 auto volatile AnyLibcxxReference_ctime = &std::ctime;
 auto volatile AnyLibcxxReference_tmpfile = &std::tmpfile;
 auto volatile AnyLibcxxReference_tmpnam = &std::tmpnam;
