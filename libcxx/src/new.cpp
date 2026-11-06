@@ -14,6 +14,9 @@
 #include <new>
 
 #if !defined(__GLIBCXX__) && !defined(_LIBCPP_ABI_VCRUNTIME)
+#if defined(_LIBCPP_ABI_PS5) && defined(_WIN32) && defined(_LIBCPP_COMPILER_GCC)
+extern "C" const unsigned char AnyLibcxxNewDeleteAnchor = 0;
+#endif
 
 // The code below is copied as-is into libc++abi's libcxxabi/src/stdlib_new_delete.cpp
 // file. The version in this file is the canonical one.

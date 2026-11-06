@@ -11,6 +11,9 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
+#if defined(_LIBCPP_ABI_PS5) && defined(_WIN32) && defined(_LIBCPP_COMPILER_GCC)
+extern "C" const unsigned char AnyLibcxxAbortAnchor = 0;
+#endif
 
 #ifdef __BIONIC__
 #  include <syslog.h>
