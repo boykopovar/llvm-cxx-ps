@@ -58,6 +58,9 @@ target_sources(cxx_static PRIVATE
     "${ANYLIBCXX_LLVM_ROOT}/libcxxabi/src/abort_message.cpp")
 target_compile_options(cxx_static PRIVATE -fshort-wchar)
 target_compile_definitions(cxx_static PRIVATE __NO_CTYPE __errno_location=__error)
+if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_sources(cxx_static PRIVATE src/Windows/SehPersonalities.S src/Windows/GccMath.cpp)
+endif()
 target_include_directories(cxx_static PRIVATE "${ANYLIBCXX_LLVM_ROOT}/libc")
 
 target_include_directories(cxx_static PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -98,6 +101,8 @@ if(WIN32)
     )
     target_sources(cxx_static PRIVATE ${windowsAdapterSources})
     set_source_files_properties(${windowsAdapterSources} PROPERTIES COMPILE_OPTIONS "-fno-builtin;-Wall;-Wextra;-Wpedantic;-Werror")
+    set_property(SOURCE src/Windows/QuickExit.cpp APPEND PROPERTY COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:GNU>:-fno-inline>")
+    set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/src/Windows/QuickExit.cpp" TARGET_DIRECTORY cxx_static PROPERTIES COMPILE_OPTIONS "$<$<CXX_COMPILER_ID:GNU>:-fno-inline>")
 endif()
 
 if(WIN32)
@@ -152,6 +157,9 @@ if(NOT ANYLIBCXX_PACKAGE_VERSION MATCHES "^[A-Za-z0-9][A-Za-z0-9._-]*$")
     message(FATAL_ERROR "Invalid package version")
 endif()
 set(ANYLIBCXX_PACKAGE_PLATFORM "${ANYLIBCXX_TARGET}")
+if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(ANYLIBCXX_PACKAGE_PLATFORM windows-gcc)
+endif()
 configure_file(cmake/Package.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/Package.cmake" @ONLY)
 add_custom_target(anylibcxx_headers
     COMMAND "${CMAKE_COMMAND}" -DHEADERS_ONLY=ON -P "${CMAKE_CURRENT_BINARY_DIR}/Package.cmake"
