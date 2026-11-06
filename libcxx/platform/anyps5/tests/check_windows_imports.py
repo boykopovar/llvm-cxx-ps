@@ -6,7 +6,15 @@ import subprocess
 def symbols(nm, path, defined):
     option = "--defined-only" if defined else "--undefined-only"
     output = subprocess.check_output([nm, option, "--format=posix", str(path)], text=True)
-    return {line.split()[0] for line in output.splitlines() if len(line.split()) >= 2 and not line.endswith(":")}
+    result = set()
+    for line in output.splitlines():
+        if len(line.split()) < 2 or line.endswith(":"):
+            continue
+        name = line.split()[0]
+        result.add(name)
+        if defined and name.startswith(".weak."):
+            result.add(name.removeprefix(".weak.").split(".", 1)[0])
+    return result
 
 
 def main():
@@ -31,7 +39,7 @@ def main():
         "scePthreadMutexTrylock", "scePthreadMutexUnlock",
         "_Unwind_Resume", "_ZSt9terminatev", "__cxa_allocate_exception",
         "__cxa_begin_catch", "__cxa_end_catch", "__cxa_free_exception",
-        "__cxa_get_globals", "__cxa_rethrow", "__cxa_throw", "__gxx_personality_v0",
+        "__cxa_get_globals", "__cxa_rethrow", "__cxa_throw", "__cxa_call_terminate", "__gxx_personality_v0",
     }
     missing = sorted(name for name in required - defined - native if not name.endswith("_nid_postfix"))
     if missing:

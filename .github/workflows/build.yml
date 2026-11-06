@@ -22,16 +22,33 @@ jobs:
         include:
           - os: ubuntu-24.04
             platform: linux
+            package: linux
+            compiler: clang
+            cxx: clang++
             shell: bash
             toolchain: Linux
             extension: tar.gz
           - os: ubuntu-24.04
             platform: ps5
+            package: ps5
+            compiler: clang
+            cxx: clang++
             shell: bash
             toolchain: Ps5
             extension: tar.gz
           - os: windows-2022
             platform: windows
+            package: windows
+            compiler: clang
+            cxx: clang++
+            shell: 'msys2 {0}'
+            toolchain: Windows
+            extension: zip
+          - os: windows-2022
+            platform: windows
+            package: windows-gcc
+            compiler: gcc
+            cxx: g++
             shell: 'msys2 {0}'
             toolchain: Windows
             extension: zip
@@ -69,13 +86,14 @@ jobs:
           update: true
           install: >-
             mingw-w64-x86_64-clang
+            mingw-w64-x86_64-gcc
             mingw-w64-x86_64-llvm-tools
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-ninja
             mingw-w64-x86_64-python
       - name: Check allocation behavior
         run: |
-          cmake -S libcxx/platform/anyps5/tests/Allocation -B build-allocation -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release
+          cmake -S libcxx/platform/anyps5/tests/Allocation -B build-allocation -G Ninja -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} -DCMAKE_BUILD_TYPE=Release
           cmake --build build-allocation --parallel 4
           ctest --test-dir build-allocation --output-on-failure
       - name: Select package version
@@ -109,6 +127,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE="cmake/toolchains/$TARGET_TOOLCHAIN.cmake" \
             -DANYLIBCXX_SYSROOT="$target_sysroot" \
+            -DANYLIBCXX_COMPILER="${{ matrix.compiler }}" \
             -DANYLIBCXX_PACKAGE_VERSION="$PACKAGE_VERSION"
       - name: Generate and package headers
         run: cmake --build build --target anylibcxx_headers --parallel 4
@@ -124,12 +143,13 @@ jobs:
         env:
           ARCHIVE_EXTENSION: ${{ matrix.extension }}
           TARGET_PLATFORM: ${{ matrix.platform }}
+          PACKAGE_PLATFORM: ${{ matrix.package }}
           TARGET_TOOLCHAIN: ${{ matrix.toolchain }}
         run: |
           set -euo pipefail
           mkdir relocated
           cd relocated
-          cmake -E tar xf "../build/packages/llvm-cxx-ps-$PACKAGE_VERSION-$TARGET_PLATFORM-x86_64.$ARCHIVE_EXTENSION"
+          cmake -E tar xf "../build/packages/llvm-cxx-ps-$PACKAGE_VERSION-$PACKAGE_PLATFORM-x86_64.$ARCHIVE_EXTENSION"
           cd ..
           if [ "$TARGET_PLATFORM" = windows ]; then
             target_sysroot="$(cygpath -m /mingw64)"
@@ -140,6 +160,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE="$PWD/libcxx/platform/anyps5/cmake/toolchains/$TARGET_TOOLCHAIN.cmake" \
             -DANYLIBCXX_SYSROOT="$target_sysroot" \
+            -DANYLIBCXX_COMPILER="${{ matrix.compiler }}" \
             -DAnyLibcxx_DIR="$PWD/relocated/lib/cmake/AnyLibcxx"
           cmake --build build-consumer --parallel 4
           llvm-ar t relocated/lib/libanycxx.a > archive-members.txt
@@ -168,7 +189,7 @@ jobs:
           fi
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: llvm-cxx-ps-${{ matrix.platform }}-x86_64
+          name: llvm-cxx-ps-${{ matrix.package }}-x86_64
           path: |
             build/packages/*.zip
             build/packages/*.tar.gz
@@ -191,7 +212,7 @@ jobs:
           cd artifacts
           sha256sum --check *.sha256
           mkdir ../headers ../packages
-          for platform in windows linux ps5; do
+          for platform in windows windows-gcc linux ps5; do
             archives=(llvm-cxx-ps-*-$platform-x86_64-headers.zip)
             test "${#archives[@]}" -eq 1
             unzip -q "${archives[0]}" -d "../headers/$platform-x86_64"
