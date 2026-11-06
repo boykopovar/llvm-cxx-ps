@@ -78,6 +78,22 @@ int vsnprintf(char*, size_t, const char*, va_list);
 int vscanf(const char*, va_list);
 int vfscanf(FILE*, const char*, va_list);
 int vsscanf(const char*, const char*, va_list);
+#if defined(__GNUC__) && !defined(__clang__)
+int printf(const char*, ...) __attribute__((format(gnu_printf, 1, 2)));
+int fprintf(FILE*, const char*, ...) __attribute__((format(gnu_printf, 2, 3)));
+int sprintf(char*, const char*, ...) __attribute__((format(gnu_printf, 2, 3)));
+int snprintf(char*, size_t, const char*, ...) __attribute__((format(gnu_printf, 3, 4)));
+int scanf(const char*, ...) __attribute__((format(gnu_scanf, 1, 2)));
+int fscanf(FILE*, const char*, ...) __attribute__((format(gnu_scanf, 2, 3)));
+int sscanf(const char*, const char*, ...) __attribute__((format(gnu_scanf, 2, 3)));
+int vprintf(const char*, va_list) __attribute__((format(gnu_printf, 1, 0)));
+int vfprintf(FILE*, const char*, va_list) __attribute__((format(gnu_printf, 2, 0)));
+int vsprintf(char*, const char*, va_list) __attribute__((format(gnu_printf, 2, 0)));
+int vsnprintf(char*, size_t, const char*, va_list) __attribute__((format(gnu_printf, 3, 0)));
+int vscanf(const char*, va_list) __attribute__((format(gnu_scanf, 1, 0)));
+int vfscanf(FILE*, const char*, va_list) __attribute__((format(gnu_scanf, 2, 0)));
+int vsscanf(const char*, const char*, va_list) __attribute__((format(gnu_scanf, 2, 0)));
+#endif
 int fseeko(FILE*, long long, int);
 long long ftello(FILE*);
 FILE* fdopen(int, const char*);
