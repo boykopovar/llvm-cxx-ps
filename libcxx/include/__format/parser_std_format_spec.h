@@ -52,6 +52,10 @@ _LIBCPP_BEGIN_NAMESPACE_STD
 
 namespace __format_spec {
 
+#if defined(_LIBCPP_ABI_PS5)
+[[noreturn]] _LIBCPP_EXPORTED_FROM_ABI void __throw_invalid_option_format_error(const char* __id, const char* __option);
+[[noreturn]] _LIBCPP_EXPORTED_FROM_ABI void __throw_invalid_type_format_error(const char* __id);
+#else
 [[noreturn]] _LIBCPP_HIDE_FROM_ABI inline void
 __throw_invalid_option_format_error(const char* __id, const char* __option) {
   std::__throw_format_error(
@@ -62,6 +66,7 @@ __throw_invalid_option_format_error(const char* __id, const char* __option) {
   std::__throw_format_error(
       (string("The type option contains an invalid value for ") + __id + " formatting argument").c_str());
 }
+#endif
 
 template <contiguous_iterator _Iterator, class _ParseContext>
 _LIBCPP_HIDE_FROM_ABI constexpr __format::__parse_number_result<_Iterator>
