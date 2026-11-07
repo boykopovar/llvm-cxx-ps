@@ -42,6 +42,10 @@ set_target_properties(AnyLibcxx::Runtime PROPERTIES IMPORTED_LOCATION "${anyLibc
 target_compile_features(AnyLibcxx::Runtime INTERFACE cxx_std_20)
 target_include_directories(AnyLibcxx::Runtime SYSTEM INTERFACE "${anyLibcxxRuntime}/include/c++/v1")
 target_compile_options(AnyLibcxx::Runtime INTERFACE -nostdinc++ -fshort-wchar)
+
+if(NOT WIN32)
+    target_compile_options(AnyLibcxx::Runtime INTERFACE -U_FORTIFY_SOURCE)
+endif()
 target_compile_definitions(AnyLibcxx::Runtime INTERFACE __NO_CTYPE __errno_location=__error)
 target_link_options(AnyLibcxx::Runtime INTERFACE "$<$<CXX_COMPILER_ID:Clang>:-nostdlib++>")
 if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
