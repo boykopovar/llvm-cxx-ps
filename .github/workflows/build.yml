@@ -176,6 +176,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_COMPILER=g++-14 \
             -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
             -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY \
             -DCMAKE_SYSROOT="$PWD/sysroot" \
             -DCMAKE_CXX_FLAGS="-fPIC -fno-stack-protector -isystem $PWD/sysroot/usr/include/x86_64-linux-gnu" \
