@@ -62,7 +62,8 @@ int __libcpp_thread_detach(__libcpp_thread_t* thread) { return AnyLibcxx::Kernel
 void __libcpp_thread_yield() { scePthreadYield(); }
 
 unsigned int __libcpp_thread_hardware_concurrency() {
-    const auto mask = sceKernelGetAvailableCpumask();
+    uint64_t mask = 0;
+    AnyLibcxx::RequireKernel(scePthreadGetaffinity(scePthreadSelf(), &mask));
     if (mask == 0) terminate();
     return static_cast<unsigned int>(popcount(mask));
 }

@@ -41,7 +41,7 @@ int ANYLIBCXX_KERNEL_ABI scePthreadJoin(void* thread, void** result);
 int ANYLIBCXX_KERNEL_ABI scePthreadDetach(void* thread);
 void* ANYLIBCXX_KERNEL_ABI scePthreadSelf();
 void ANYLIBCXX_KERNEL_ABI scePthreadYield();
-std::uint64_t ANYLIBCXX_KERNEL_ABI sceKernelGetAvailableCpumask();
+int ANYLIBCXX_KERNEL_ABI scePthreadGetaffinity(void* thread, std::uint64_t* mask);
 int ANYLIBCXX_KERNEL_ABI scePthreadKeyCreate(int* key, AnyLibcxx::KernelDestructor destructor);
 int ANYLIBCXX_KERNEL_ABI scePthreadKeyDelete(int key);
 void* ANYLIBCXX_KERNEL_ABI scePthreadGetspecific(int key);
