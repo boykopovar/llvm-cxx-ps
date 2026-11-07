@@ -1,4 +1,4 @@
-#include "Runtime/Kernel.hpp"
+#include "Threading/Callbacks.hpp"
 
 #include <__external_threading>
 #include <bit>
@@ -19,7 +19,11 @@ struct ThreadValue {
     void* Value;
 };
 
-void* runThread(void* argument) noexcept {
+}
+
+namespace AnyLibcxx {
+
+void* RunThread(void* argument) noexcept {
     auto start = std::unique_ptr<ThreadStart>(static_cast<ThreadStart*>(argument));
     const auto entry = start->Entry;
     const auto value = start->Argument;
@@ -27,17 +31,13 @@ void* runThread(void* argument) noexcept {
     return entry(value);
 }
 
-void* ANYLIBCXX_KERNEL_ABI threadEntry(void* argument) { return runThread(argument); }
-
-void destroyValue(void* argument) noexcept {
+void DestroyValue(void* argument) noexcept {
     auto node = std::unique_ptr<ThreadValue>(static_cast<ThreadValue*>(argument));
     const auto destructor = node->Destructor;
     const auto value = node->Value;
     node.reset();
     if (destructor) destructor(value);
 }
-
-void ANYLIBCXX_KERNEL_ABI tlsDestructor(void* argument) { destroyValue(argument); }
 
 }
 
@@ -52,7 +52,7 @@ __libcpp_thread_id __libcpp_thread_get_id(const __libcpp_thread_t* thread) { ret
 int __libcpp_thread_create(__libcpp_thread_t* thread, void* (*entry)(void*), void* argument) {
     auto start = unique_ptr<ThreadStart>(new (nothrow) ThreadStart{entry, argument});
     if (!start) return ENOMEM;
-    const auto result = scePthreadCreate(thread, nullptr, threadEntry, start.get(), "libc++ thread");
+    const auto result = scePthreadCreate(thread, nullptr, AnyLibcxx::ThreadEntry, start.get(), "libc++ thread");
     if (result == 0) start.release();
     return AnyLibcxx::KernelError(result);
 }
@@ -80,7 +80,7 @@ void __libcpp_thread_sleep_for(const chrono::nanoseconds& duration) {
 }
 
 int __libcpp_tls_create(__libcpp_tls_key* key, void (*destructor)(void*)) {
-    const auto result = scePthreadKeyCreate(&key->Key, tlsDestructor);
+    const auto result = scePthreadKeyCreate(&key->Key, AnyLibcxx::TlsDestructor);
     if (result == 0) key->Destructor = destructor;
     return AnyLibcxx::KernelError(result);
 }

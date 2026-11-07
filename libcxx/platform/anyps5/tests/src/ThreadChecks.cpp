@@ -73,7 +73,8 @@ void RunThreadChecks() {
         lock.unlock();
         worker.join();
         lock.lock();
-        require(condition.wait_for(lock, 2ms) == std::cv_status::timeout, "Condition timeout was not reported");
+        const auto timeoutStart = std::chrono::steady_clock::now();
+        require(!condition.wait_for(lock, 2ms, [] { return false; }) && std::chrono::steady_clock::now() - timeoutStart >= 2ms, "Condition timeout was not reported");
     }
 
     {
