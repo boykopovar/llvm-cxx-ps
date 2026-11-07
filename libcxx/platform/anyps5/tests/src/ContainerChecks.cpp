@@ -53,6 +53,17 @@ struct CollisionHash {
     std::size_t operator()(unsigned int value) const noexcept { return value % 7; }
 };
 
+struct NestedGroup { std::vector<std::string> Values; };
+struct NestedAttachment { std::optional<NestedGroup> Group; };
+struct NestedDocument { std::optional<NestedAttachment> Attachment; };
+
+struct ThrowingCopy {
+    inline static unsigned Destroyed = 0;
+    ThrowingCopy() = default;
+    ThrowingCopy(const ThrowingCopy&) { throw std::runtime_error("copy failed"); }
+    ~ThrowingCopy() { ++Destroyed; }
+};
+
 struct alignas(64) AlignedValue { std::array<std::uint64_t, 8> Data{}; };
 
 struct UnwindObserver {
@@ -68,6 +79,29 @@ struct UnwindObserver {
 
 void RunContainerChecks(unsigned int seed) {
     require(std::uncaught_exceptions() == 0, "Unexpected initial exception count");
+    for (unsigned iteration = 0; iteration < 128; ++iteration) {
+        NestedDocument original;
+        if (iteration % 3 != 0) original.Attachment.emplace();
+        if (iteration % 3 == 2) original.Attachment->Group.emplace(NestedGroup{{std::string(64, 'a')}});
+        std::variant<std::monostate, NestedDocument, std::vector<int>> source(original);
+        auto copied = source;
+        auto moved = std::move(copied);
+        auto& document = std::get<NestedDocument>(moved);
+        require(document.Attachment.has_value() == original.Attachment.has_value(), "Nested optional engagement changed during variant copy");
+        if (document.Attachment) {
+            require(document.Attachment->Group.has_value() == original.Attachment->Group.has_value(), "Inner optional engagement changed during variant copy");
+            if (document.Attachment->Group) {
+                document.Attachment->Group->Values[0][0] = 'b';
+                require(original.Attachment->Group->Values[0][0] == 'a', "Nested variant copy retained shared ownership");
+            }
+        }
+    }
+    {
+        std::optional<std::optional<ThrowingCopy>> source(std::in_place, std::in_place);
+        const auto destroyed = ThrowingCopy::Destroyed;
+        expectException<std::runtime_error>([&] { const auto copy = source; static_cast<void>(copy); });
+        require(source && *source && ThrowingCopy::Destroyed == destroyed, "Failed optional copy destroyed unconstructed storage");
+    }
     expectException<std::bad_array_new_length>([] { __cxxabiv1::__cxa_throw_bad_array_new_length(); });
     require(std::format("{}:{:x}", std::numeric_limits<unsigned long long>::max(), std::numeric_limits<unsigned long long>::max()) == "18446744073709551615:ffffffffffffffff", "Unsigned integer formatting failed");
     require(std::format("{}", std::numeric_limits<long long>::min()) == "-9223372036854775808", "Signed integer formatting failed");
