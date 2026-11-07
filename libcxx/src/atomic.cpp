@@ -14,7 +14,12 @@
 
 #include "include/apple_availability.h"
 
-#ifdef __linux__
+#if defined(_LIBCPP_ABI_PS5)
+
+#  include <condition_variable>
+#  include <mutex>
+
+#elif defined(__linux__)
 
 #  include <linux/futex.h>
 #  include <sys/syscall.h>
@@ -51,7 +56,32 @@
 
 _LIBCPP_BEGIN_NAMESPACE_STD
 
-#ifdef __linux__
+#if defined(_LIBCPP_ABI_PS5)
+
+struct KernelParkingSlot {
+  mutex Mutex;
+  condition_variable Condition;
+};
+
+static KernelParkingSlot& parkingSlot(const volatile void* address) {
+  static KernelParkingSlot slots[256];
+  return slots[(reinterpret_cast<uintptr_t>(address) >> 3) % 256];
+}
+
+static void
+__libcpp_platform_wait_on_address(__cxx_atomic_contention_t const volatile* address, __cxx_contention_t value) {
+  auto& slot = parkingSlot(address);
+  unique_lock lock(slot.Mutex);
+  slot.Condition.wait(lock, [&] { return !__cxx_nonatomic_compare_equal(__cxx_atomic_load(address, memory_order_relaxed), value); });
+}
+
+static void __libcpp_platform_wake_by_address(__cxx_atomic_contention_t const volatile* address, bool) {
+  auto& slot = parkingSlot(address);
+  lock_guard lock(slot.Mutex);
+  slot.Condition.notify_all();
+}
+
+#elif defined(__linux__)
 
 static void
 __libcpp_platform_wait_on_address(__cxx_atomic_contention_t const volatile* __ptr, __cxx_contention_t __val) {

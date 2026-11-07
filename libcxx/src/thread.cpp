@@ -22,7 +22,7 @@
 #  pragma weak pthread_create // Do not create libpthread dependency
 #endif
 
-#if defined(_LIBCPP_WIN32API)
+#if defined(_LIBCPP_WIN32API) && !defined(_LIBCPP_ABI_PS5)
 #  include <windows.h>
 #endif
 
@@ -62,7 +62,9 @@ void thread::detach() {
 }
 
 unsigned thread::hardware_concurrency() noexcept {
-#if defined(_SC_NPROCESSORS_ONLN)
+#if defined(_LIBCPP_ABI_PS5)
+  return __libcpp_thread_hardware_concurrency();
+#elif defined(_SC_NPROCESSORS_ONLN)
   long result = sysconf(_SC_NPROCESSORS_ONLN);
   // sysconf returns -1 if the name is invalid, the option does not exist or
   // does not have a definite limit.

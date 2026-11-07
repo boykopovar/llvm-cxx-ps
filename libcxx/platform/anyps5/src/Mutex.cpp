@@ -1,62 +1,72 @@
+#include "Runtime/Kernel.hpp"
+#include "Threading/Handles.hpp"
+
+#include <__external_threading>
 #include <atomic>
-#include <cstdint>
+#include <cerrno>
 #include <exception>
-#include <mutex>
-#include <system_error>
 
-extern "C" {
-int __attribute__((sysv_abi)) scePthreadMutexInit(void** mutex, void* const* attributes, const char* name);
-int __attribute__((sysv_abi)) scePthreadMutexDestroy(void** mutex);
-int __attribute__((sysv_abi)) scePthreadMutexLock(void** mutex);
-int __attribute__((sysv_abi)) scePthreadMutexTrylock(void** mutex);
-int __attribute__((sysv_abi)) scePthreadMutexUnlock(void** mutex);
-}
+namespace AnyLibcxx {
 
-namespace {
-void require(int result) noexcept {
-    if (result != 0) std::terminate();
-}
-
-void* initialize(void*& storage) {
-    std::atomic_ref<void*> handle(storage);
+int InitializeMutex(void** storage) {
+    std::atomic_ref handle(*storage);
     auto current = handle.load(std::memory_order_acquire);
-    if (current) return current;
+    if (current) return 0;
+
     void* created = nullptr;
     const auto result = scePthreadMutexInit(&created, nullptr, "libc++");
-    if (result != 0) throw std::system_error(result, std::system_category(), "scePthreadMutexInit");
+    if (result != 0) return KernelError(result);
     if (!created) std::terminate();
-    if (handle.compare_exchange_strong(current, created, std::memory_order_acq_rel, std::memory_order_acquire)) return created;
-    require(scePthreadMutexDestroy(&created));
-    return current;
+    if (!handle.compare_exchange_strong(current, created, std::memory_order_acq_rel, std::memory_order_acquire)) RequireKernel(scePthreadMutexDestroy(&created));
+    return 0;
 }
+
 }
 
 _LIBCPP_BEGIN_NAMESPACE_STD
-mutex::~mutex() noexcept {
-    auto handle = atomic_ref<void*>(__m_).load(memory_order_relaxed);
-    if (handle) require(scePthreadMutexDestroy(&handle));
+
+int __libcpp_mutex_lock(__libcpp_mutex_t* mutex) {
+    const auto result = AnyLibcxx::InitializeMutex(mutex);
+    if (result != 0) return result;
+    return AnyLibcxx::KernelError(scePthreadMutexLock(mutex));
 }
 
-void mutex::lock() {
-    auto handle = initialize(__m_);
-    const auto result = scePthreadMutexLock(&handle);
-    if (result != 0) {
-        if (static_cast<uint32_t>(result) == 0x8002000b) throw system_error(make_error_code(errc::resource_deadlock_would_occur), "scePthreadMutexLock");
-        throw system_error(result, system_category(), "scePthreadMutexLock");
-    }
-}
-
-bool mutex::try_lock() noexcept {
-    auto handle = initialize(__m_);
-    const auto result = scePthreadMutexTrylock(&handle);
-    if (static_cast<uint32_t>(result) == 0x80020010) return false;
-    require(result);
+bool __libcpp_mutex_trylock(__libcpp_mutex_t* mutex) {
+    AnyLibcxx::RequireKernel(AnyLibcxx::InitializeMutex(mutex));
+    const auto result = AnyLibcxx::KernelError(scePthreadMutexTrylock(mutex));
+    if (result == EBUSY) return false;
+    AnyLibcxx::RequireKernel(result);
     return true;
 }
 
-void mutex::unlock() noexcept {
-    auto handle = atomic_ref<void*>(__m_).load(memory_order_acquire);
+int __libcpp_mutex_unlock(__libcpp_mutex_t* mutex) {
+    const auto handle = atomic_ref(*mutex).load(memory_order_acquire);
     if (!handle) terminate();
-    require(scePthreadMutexUnlock(&handle));
+    AnyLibcxx::RequireKernel(scePthreadMutexUnlock(mutex));
+    return 0;
 }
+
+int __libcpp_mutex_destroy(__libcpp_mutex_t* mutex) {
+    const auto handle = atomic_ref(*mutex).load(memory_order_relaxed);
+    if (handle) AnyLibcxx::RequireKernel(scePthreadMutexDestroy(mutex));
+    return 0;
+}
+
+int __libcpp_recursive_mutex_init(__libcpp_recursive_mutex_t* mutex) {
+    void* attributes = nullptr;
+    auto result = scePthreadMutexattrInit(&attributes);
+    if (result != 0) return AnyLibcxx::KernelError(result);
+
+    result = scePthreadMutexattrSettype(&attributes, 2);
+    if (result == 0) result = scePthreadMutexInit(mutex, &attributes, "libc++ recursive");
+    AnyLibcxx::RequireKernel(scePthreadMutexattrDestroy(&attributes));
+    return AnyLibcxx::KernelError(result);
+}
+
+int __libcpp_recursive_mutex_lock(__libcpp_recursive_mutex_t* mutex) { return __libcpp_mutex_lock(mutex); }
+bool __libcpp_recursive_mutex_trylock(__libcpp_recursive_mutex_t* mutex) { return __libcpp_mutex_trylock(mutex); }
+int __libcpp_recursive_mutex_unlock(__libcpp_recursive_mutex_t* mutex) { return __libcpp_mutex_unlock(mutex); }
+int __libcpp_recursive_mutex_destroy(__libcpp_recursive_mutex_t* mutex) { return __libcpp_mutex_destroy(mutex); }
+
 _LIBCPP_END_NAMESPACE_STD
+

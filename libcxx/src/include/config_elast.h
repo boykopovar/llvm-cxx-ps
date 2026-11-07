@@ -19,7 +19,8 @@
 
 // Note: _LIBCPP_ELAST needs to be defined only on platforms
 // where strerror/strerror_r can't handle out-of-range errno values.
-#if defined(ELAST)
+#if defined(_LIBCPP_ABI_PS5)
+#elif defined(ELAST)
 #  define _LIBCPP_ELAST ELAST
 #elif defined(__LLVM_LIBC__)
 // No _LIBCPP_ELAST needed for LLVM libc

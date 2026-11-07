@@ -1,4 +1,5 @@
 #include "ContainerChecks.hpp"
+#include "ThreadChecks.hpp"
 #include "prx/libkernel/include/Api.hpp"
 #include <exception>
 
@@ -9,6 +10,7 @@ int main() {
     try {
         RunContainerChecks(0x12345678);
         RunMutexChecks();
+        RunThreadChecks();
         RunCApiChecks();
         sceKernelDebugOutText(0, "Runtime integration checks passed");
         return 0;

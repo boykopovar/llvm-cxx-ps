@@ -21,6 +21,10 @@
 
 #include "include/config_elast.h"
 
+#if defined(_LIBCPP_ABI_PS5)
+#  include "Runtime/Error.hpp"
+#endif
+
 #if defined(_LIBCPP_WIN32API)
 #  include <windows.h>
 #  include <winerror.h>
@@ -139,7 +143,7 @@ std::optional<errc> __win_err_to_errc(int err) {
 #endif
 
 namespace {
-#if _LIBCPP_HAS_THREADS
+#if _LIBCPP_HAS_THREADS && !defined(_LIBCPP_ABI_PS5)
 
 //  GLIBC also uses 1024 as the maximum buffer size internally.
 constexpr size_t strerror_buff_size = 1024;
@@ -226,7 +230,9 @@ string make_error_str(const error_code& ec) {
 } // namespace
 
 string __do_message::message(int ev) const {
-#if !_LIBCPP_HAS_THREADS
+#if defined(_LIBCPP_ABI_PS5)
+  return AnyLibcxx::ErrorMessage(ev);
+#elif !_LIBCPP_HAS_THREADS
   return string(::strerror(ev));
 #else
   return do_strerror_r(ev);

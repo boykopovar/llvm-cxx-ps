@@ -29,7 +29,7 @@ static_assert(sizeof(std::condition_variable) > 0);
 static_assert(sizeof(std::thread) > 0);
 static_assert(std::is_trivially_copyable_v<std::thread::id>);
 static_assert(sizeof(std::atomic<std::thread::id>) > 0);
-static_assert(_LIBCPP_HAS_THREADS == 0);
+static_assert(_LIBCPP_HAS_THREADS == 1);
 
 namespace {
 

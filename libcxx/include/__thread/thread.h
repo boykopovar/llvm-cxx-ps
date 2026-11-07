@@ -114,7 +114,9 @@ __thread_specific_ptr<_Tp>::~__thread_specific_ptr() {
 template <class _Tp>
 void __thread_specific_ptr<_Tp>::set_pointer(pointer __p) {
   _LIBCPP_ASSERT_INTERNAL(get() == nullptr, "Attempting to overwrite thread local data");
-  std::__libcpp_tls_set(__key_, __p);
+  int __ec = std::__libcpp_tls_set(__key_, __p);
+  if (__ec)
+    __throw_system_error(__ec, "thread local storage assignment failed");
 }
 
 template <>
