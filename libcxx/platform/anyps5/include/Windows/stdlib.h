@@ -1,6 +1,14 @@
 #ifndef ANYLIBCXX_WINDOWS_STDLIB_H
 #define ANYLIBCXX_WINDOWS_STDLIB_H
+#ifndef __CRT__NO_INLINE
+#define __CRT__NO_INLINE 1
+#define ANYLIBCXX_RESTORE_CRT_INLINE
+#endif
 #include_next <stdlib.h>
+#ifdef ANYLIBCXX_RESTORE_CRT_INLINE
+#undef __CRT__NO_INLINE
+#undef ANYLIBCXX_RESTORE_CRT_INLINE
+#endif
 #include <AnyLibcxxMbCurMax.h>
 #ifdef __cplusplus
 extern "C" {
