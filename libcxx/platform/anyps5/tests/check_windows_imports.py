@@ -45,7 +45,7 @@ def main():
         "sceKernelClockGettime", "sceKernelNanosleep", "scePthreadGetaffinity",
         "_Unwind_Resume", "_ZSt9terminatev", "__cxa_allocate_exception",
         "__cxa_begin_catch", "__cxa_end_catch", "__cxa_free_exception",
-        "__cxa_get_globals", "__cxa_rethrow", "__cxa_throw", "__cxa_call_terminate", "__gxx_personality_v0",
+        "__cxa_get_globals", "__cxa_rethrow", "__cxa_throw", "__gxx_personality_v0",
     }
     missing = sorted(name for name in required - defined - native if not name.endswith("_nid_postfix"))
     if missing:
