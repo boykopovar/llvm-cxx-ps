@@ -64,7 +64,13 @@ int __libcpp_recursive_mutex_init(__libcpp_recursive_mutex_t* mutex) {
 }
 
 int __libcpp_recursive_mutex_lock(__libcpp_recursive_mutex_t* mutex) { return __libcpp_mutex_lock(mutex); }
-bool __libcpp_recursive_mutex_trylock(__libcpp_recursive_mutex_t* mutex) { return __libcpp_mutex_trylock(mutex); }
+bool __libcpp_recursive_mutex_trylock(__libcpp_recursive_mutex_t* mutex) {
+    const auto result = AnyLibcxx::KernelError(scePthreadMutexTrylock(mutex));
+    if (result == EBUSY || result == EAGAIN) return false;
+    AnyLibcxx::RequireKernel(result);
+    return true;
+}
+
 int __libcpp_recursive_mutex_unlock(__libcpp_recursive_mutex_t* mutex) { return __libcpp_mutex_unlock(mutex); }
 int __libcpp_recursive_mutex_destroy(__libcpp_recursive_mutex_t* mutex) { return __libcpp_mutex_destroy(mutex); }
 
