@@ -107,6 +107,7 @@ if(WIN32)
         src/Windows/AtExit.cpp
         src/Windows/QuickExit.cpp
         src/Windows/Exit.cpp
+        src/Windows/Terminate.cpp
         src/Windows/Search.cpp
         src/Windows/Numbers.cpp
         src/Windows/Time.cpp
