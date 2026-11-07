@@ -52,7 +52,8 @@ if(NOT WIN32)
     target_sources(cxx_static PRIVATE src/Scanning.cpp src/Elf/Math.cpp)
 endif()
 add_library(anylibcxx_builtins OBJECT
-    "${ANYLIBCXX_LLVM_ROOT}/compiler-rt/lib/builtins/udivmodti4.c")
+    "${ANYLIBCXX_LLVM_ROOT}/compiler-rt/lib/builtins/udivmodti4.c"
+    "${ANYLIBCXX_LLVM_ROOT}/compiler-rt/lib/builtins/popcountdi2.c")
 set_target_properties(anylibcxx_builtins PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)
 target_compile_options(anylibcxx_builtins PRIVATE -fno-builtin -fno-stack-protector -fvisibility=hidden -ffunction-sections -fdata-sections)
 target_sources(cxx_static PRIVATE $<TARGET_OBJECTS:anylibcxx_builtins>)
