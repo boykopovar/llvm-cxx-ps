@@ -24,6 +24,7 @@ void invoke() noexcept { fail(); }
 
 int main() {
     std::set_terminate(verifyTerminate);
+    if (std::get_terminate() != verifyTerminate) return 6;
     invoke();
     return 5;
 }
