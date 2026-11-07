@@ -8,6 +8,15 @@ using namespace __cxxabiv1;
 #define HAVE_DEPENDENT_EH_ABI 1
 #include "support/runtime/exception_pointer_cxxabi.ipp"
 
+namespace __cxxabiv1 {
+
+void __cxa_call_terminate(void* argument) noexcept {
+    __cxa_begin_catch(argument);
+    std::terminate();
+}
+
+}
+
 namespace std {
 
 int uncaught_exceptions() noexcept {
