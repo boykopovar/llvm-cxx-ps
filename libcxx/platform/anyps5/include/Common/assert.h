@@ -1,5 +1,8 @@
 #ifndef ANYLIBCXX_ASSERT_H
 #define ANYLIBCXX_ASSERT_H
+#if !defined(__cplusplus) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && __STDC_VERSION__ < 202311L
+#define static_assert _Static_assert
+#endif
 #ifdef __cplusplus
 extern "C" [[noreturn]] void AnyLibcxxAssertionFailed(const char* expression, const char* file, unsigned line, const char* function);
 #else
