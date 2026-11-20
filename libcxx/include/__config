@@ -284,8 +284,9 @@ _LIBCPP_HARDENING_MODE_DEBUG
 //      Use rand_s(), for use on Windows.
 //      When this option is used, the token passed to `std::random_device`'s
 //      constructor *must* be "/dev/urandom" -- anything else is an error.
-#  if defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) ||                     \
-      defined(__DragonFly__)
+#  if defined(_LIBCPP_ABI_PS5)
+#    define _LIBCPP_USING_ANYPS5_RANDOM
+#  elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 #    define _LIBCPP_USING_ARC4_RANDOM
 #  elif defined(__wasi__) || defined(__EMSCRIPTEN__)
 #    define _LIBCPP_USING_GETENTROPY
